@@ -1,0 +1,44 @@
+\documentclass[Tesi.tex]{subfiles}
+
+\begin{document}
+
+\section{CONCLUSIONI}
+Qui finisce la spiegazione dell'estensione tramite link di Cauder.
+Questa è un'implementazione basilare ma che copre ogni aspetto riguardante i link e la gestione degli errori.
+Un parola va data alle funzioni $\mathsf{error}$ e $\mathsf{exit}$.
+Queste due funzioni non hanno valori di ritorno ma solo effetti collaterali mentre in Cauder essi vanno a cambiare \textit{P.e}.
+Ma se il programma terminasse con la tupla $\displaystyle \{\mathsf{error},Reason,\mathsf{stack}\}$ scelta dal programmatore?
+Cauder la gestirebbe come un errore mentre invece è una terminazione normale del codice.
+Una possibile soluzione potrebbe essere quella di aggiungere al \textit{record proc} un campo \textit{is\_alive} che è $\mathsf{true}$ se il processo è attivo oppure è $\displaystyle \{\mathsf{false},\{Type,Reason\}\}$ nel caso il processo fosse terminato. 
+Per quanto riguarda i \underline{link} esistono altre 2 funzioni utilizzabili:
+\begin{itemize}
+	\item $\displaystyle \mathsf{link}(Pid)\xrightarrow{return}\mathsf{true}$: Crea un collegamento tra il processo chiamante e il process \textit{Pid}. Se il collegamento esiste già o un processo tenta di creare un collegamento a se stesso, non viene eseguita alcuna operazione. Restituisce $\mathsf{true}$se il collegamento viene impostato.
+	Se \textit{Pid} non esiste, viene generato un errore $\mathsf{noproc}$.
+	\item $\displaystyle \mathsf{unlink}(Pid)\xrightarrow{return}\mathsf{true}$: Rimuove il collegamento, se presente, tra il processo chiamante e il processo \textit{Pid}. Restituisce $\mathsf{true}$ e non ha esito negativo, anche se non è presente alcun collegamento a \textit{Pid} o se \textit{Pid} non esiste.
+\end{itemize}
+Per quanto riguarda i segnali si è visto solo la propagazione dovuta a terminazione come mezzo di invio, che è un effetto collaterale.
+Esiste una funzione apposita per l'invio dei segnali analoga alla \textit{send}:
+\begin{itemize}
+	\item $\displaystyle \mathsf{exit}(Pid,Reason)\xrightarrow{return}\mathsf{true}$: Invia un segnale di uscita con motivo uscita \textit{Reason} al processo identificato da \textit{Pid}.
+	Il comportamento in base a \textit{Reason} è lo stesso visto fino ad ora tranne per una specifica \textit{Reason}, ovvero \textit{Reason}=$\mathsf{kill}$.
+	In questo caso  viene inviato un segnale di uscita \textbf{untrappable} a \textit{Pid}, che esce incondizionatamente con \textit{Reason}=$\mathsf{killed}$.
+\end{itemize}
+In Erlang esiste una seconda metodologia per la gestione dell'error-handling ovvero l'uso dei \textit{monitor}. Ne parlerò brevemente per darne un'idea generale del loro funzionamento.
+Quando un processo \textit{Pid} monitorato esce per un qualsiasi motivo, il processo monitorante riceve un messaggio del tipo $\displaystyle\{\mathsf{DOWN},MonitorRef,Type,Pid,Reason\}$ dove:
+	\begin{itemize}
+		\item \textit{MonitorRef}: è il riferimento al monitor.
+		\item \textit{Type}: $\mathsf{error}$ o $\mathsf{exit}$.
+		\item \textit{Reason}: è il motivo di uscita del processo \textit{Pid}.
+	\end{itemize}
+Le principali differenze tra i \textit{monitor} e i \textit{link} sono le seguenti:
+	\begin{itemize}
+		\item I monitor sono unidirezionali: Se il processo monitorante terminasse per \textbf{qualsiasi} motivo prima del processo monitorato, quest'ultimo non ne avrebbe ripercussioni.
+		\item I monitor utilizzano solo i \textit{messaggi} per le notifiche di uscita.
+		\item Un processo può avere più di un \textit{monitor}.
+	\end{itemize}
+Questo argomento è stato molto illuminante poichè fino ad ora non avevo mai utilizzato un debugger.
+Estenderne uno reversibile ha cambiato radicalmente la mia opinione riguardo ad essi. Dovendolo estendere son stato costretto a doverlo prima utilizzare per poter capirne il flusso di esecuzione. Provandolo su programmi di esempio mi son reso conto effettivamente della loro utilità. Riguardo all'effettiva estensione di Cauder sono rimasto stupito dal notare parecchie analogie con un interprete, una cosa su cui non avevo mai riflettuto fino adesso. In secondo luogo mi son reso conto dell'importanza di scrivere codice ben strutturato in modo tale da poterlo riprendere anche dopo molto tempo. Soprattutto se il programma non è scritto da te e non sarai l'ultimo a scriverci.
+Rimanere in linea con la struttura del codice già scritto porta ad una comprensione nei minimi dettagli di come e su cosa lavora il programma.
+Inoltre son rimasto molto affascinato dal campo della reversibilità causal-consistent.
+Più in specifico è stato molto edificante studiarne le basi teoriche, capirne i ragionamenti e i perchè, per poi applicarne i frutti su un progetto reale. 
+\end{document}

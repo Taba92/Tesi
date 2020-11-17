@@ -1,0 +1,29 @@
+\documentclass[Tesi.tex]{subfiles}
+
+\begin{document}
+
+\section{BACKGROUND}
+Come già anticipato nell'introduzione, il calcolo reversibile permette di eseguire computazioni sia in avanti che all'indietro, permettendo il recupero degli stati precedenti.
+Esso trova origini in fisica, più precisamente nel \textit{Principio di Landauer} \cite{landauer}, affermando che l'eliminazione di bit di informazione produce una quantità di calore che non può essere diminuita oltre un determinato limite.
+Il principio di Landauer descrive il \textit{limite di Landauer} W, che fissa il minimo ammontare di energia che serve per cambiare un bit di informazione ed è formulato come segue: 
+\[
+W=kT ln 2
+\]
+dove
+\begin{itemize}
+	\item k è la costante di Boltzmann (1,380649x10-23 J $K^{-1}$)
+	\item T è la temperatura assoluta del circuito in kelvin
+	\item ln 2 è il logaritmo naturale di 2
+\end{itemize}
+Nella realtà quotidiana la quantità di energia rilasciata da una macchina per un qualsiasi processo di elaborazione dati è decisamente maggiore di molti ordini di grandezza rispetto al limite di Landauer.
+La reversibilità fisica permetterebbe quindi di ottenere risultati senza rilascio di calore, ma come affermato sempre da Landauer \cite{wikipedia}, \textit{per poter essere reversibile fisicamente un calcolatore deve essere anche logicamente reversibile}.
+Da allora il calcolo reversibile ha suscitato interesse in svariati campi, quali il design di hardware convenzionale e quantistico, biologia computazionale, sviluppo software ecc..\cite{book}.
+Questa tesi si focalizzerà nell'applicazione del calcolo reversibile al debugging.
+Articolerò il background in 2 step:
+\begin{enumerate}
+	\item Quali tecniche servono per applicare la reversibilità al debugging
+	\item Implementare queste tecniche su uno strumento software reale
+\end{enumerate}
+\subfile{./Background/ReversibilitaToDebugging/reversibilita}
+\subfile{./Background/Cauder/cauder}
+\end{document}

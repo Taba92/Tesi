@@ -1,0 +1,16 @@
+\documentclass[introduzione.tex]{subfiles}
+
+\begin{document}
+\begin{figure}[H]
+\begin{multicols}{2}
+a)Codice sequenziale\lstinputlisting{./Introduzione/EsempioSeqConc/exampleSeq.erl}
+Il flusso del codice è sempre univocamente definito ed uguale ad ogni riesecuzione per l'input 3.
+\vfill\null
+\columnbreak
+b)Codice concorrente\lstinputlisting{./Introduzione/EsempioSeqConc/exampleCunc.erl}
+Il flusso del codice è univocamente definito solo fino al \textit{case} mentre, dopo la \textit{spawn}, può essere eseguita prima la stampa di "A" poi di "B", \textit{o viceversa} in base ad un certo \textit{scheduling}, \textit{cambiando potenzialmente ad ogni riesecuzione}.
+\end{multicols}
+\caption{Esempio codice sequenziale e concorrente}
+\label{seqconc}
+\end{figure}
+\end{document}

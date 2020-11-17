@@ -1,0 +1,62 @@
+\documentclass[background.tex]{subfiles}
+
+\begin{document}
+\subsection{Reversibilità ed applicazione al debugging}
+In questa sezione fisserò il \textbf{tragitto} che parte dalla nozione di reversibilità fino all'applicazione di essa al debugging, in cui faccio riferimento a \cite{lanese18}.
+Questo tragitto si articola nei passi seguenti, che verranno enfatizzati nelle sezioni successive:
+\begin{enumerate}
+	\item Quale nozione di reversibilità serve nei sistemi concorrenti
+	\item Quali informazione devo memorizzare
+	\item Come controllare i meccanismi reversibili di base
+	\item Come sfruttare questi meccanismi per il debugging reversibile
+\end{enumerate}
+\textbf{1)Quale nozione di reversibilità serve nei sistemi concorrenti}:\\
+Già nell'introduzione ho accennato che la nozione che userò sarà la nozione di \textit{causal-consistent reversibility}. Questa nozione, in termini informali, può essere formulata come:
+\textit{"annulla ricorsivamente qualsiasi azione a patto che \underline{tutte} le sue conseguenze siano state annullate in precedenza"}.
+Più formalmente:
+Sia \textit{un'azione}=\textit{A,B,...} per denotare l'effettiva azione o \textit{$A^{-1}$...} per denotare l'undo di un'azione.\\
+Sia $\sigma$ una sequenza di azioni.\\
+Denoto con $A_{n}$ l'ennesima occorrenza di A in $\sigma$.
+\newtheorem*{CausalTrace}{Lemma causal-consistent trace}
+\begin{CausalTrace}
+$\sigma$ è causal-consistent $\iff$ $\forall$ $A_{n}$ e $B_{m}$, che sia compresa tra $A_{n}$ e $A_{n}^{-1}$, o $B_{m}$ non è conseguenza di $A_{n}$ oppure $B_{m}^{-1}$ è prima di $A_{n}^{-1}$.
+\end{CausalTrace}
+Ecco come la \textit{causalità}, espressa nell'introduzione, prende forma in questa nozione. La consistenza-causale poggia le sue basi sul \textit{Loop Lemma}, che si formalizza nei due assiomi a seguire.
+Informalmente questo lemma afferma che l'esecuzione di un'azione e poi l'immediato annullamento di essa, dovrebbe ricondurre allo stato di partenza.
+Formalmente:
+\newtheorem{ax1}{Assioma Loop Lemma}
+	\begin{ax1}
+ 		$\displaystyle S\xrightarrow{A}S'\xrightarrow{A^{-1}}S$: Se da uno stato S eseguo un'azione A per poi annullarna nel passo successivo, allora devo ritornare allo stato S.
+	\end{ax1}
+\newtheorem{ax2}{Assioma Loop Lemma}
+	\begin{ax2}
+ 		$\displaystyle S\xrightarrow{A^{-1}}S'\xrightarrow{A}S$: Se da uno stato S eseguo l'undo di A per poi rifare A, allora devo ritornare allo stato S.
+	\end{ax2}
+Questo lemma risulta essere importante, in quanto ci assicura di effettuare passi all'indietro in \textbf{modo univocamente definito}. Se così non fosse, ad ogni passo all'indietro, accederei ad un'ulteriore sotto-albero di computazione, cosa che si rivelerebbe totalmente inutile per il debugging.\\
+\textbf{2)Quale informazione devo memorizzare}:\\
+Per poter annullare un'azione, devo evitare la perdita di informazioni. Se così non fosse avrei una combinazione elevata di possibili stati predecessori, il chè renderebbe impossibile risalire allo stato precedente.
+Va quindi mantenuta un'informazione sulla storia della computazione che chiamerò \textit{history}, che sia compatibile con la nozione causal-consistent.
+\textbf{Detto ciò bisogna tenere quindi conto del vincolo posto dal Loop Lemma per costruire la \textit{history} giusta ma significativa allo stesso tempo}. Per esempio tener traccia di quante volte è stata fatta l'undo di un'azione viola chiaramente il Loop Lemma, in quanto un counter globale verrebbe solo incrementato. Fortunatamente grazie al \textit{causal-consistency theorem}\cite{causal}, si riesce a caratterizzare la \textit{history} da conservare.
+Il teorema afferma, informalmente, che 2 computazione che iniziano dallo stesso stato S, finiscono nello stesso stato S' $\iff$ sono equivalenti.\\
+\textbf{Questo è un risultato importante in quanto la \textit{history} fa parte dello stato, ciò vuole dire che finire nello stesso stato significhi avere la stessa \textit{history}}.
+Sebbene questo sia un risultato molto generico e non dipendente da un linguaggio specifico, esso ci da una base astratta per poter applicare su un linguaggio specifico la nozione di consistenza causale.\\
+\textbf{3)Come controllare i meccanismi reversibili di base}:\\
+Nel punto 1 abbiamo fissato il concetto di causal-consistency reversibility dicendo quando una sequenza di azione è causal-consistent, mentre nel punto 2 abbiamo fissato cosa ci serve per poter effettuare passi all'indietro. In questo punto introduco il meccanismo di \textit{roll}.
+Questo meccanismo permette di fare l'undo di un'azione A, mantenendo la consistenza-causale e algoritmicamente formalizza la nozione di causal-consistency reversibility:\\
+\begin{algorithm}[H]
+\caption{Roll(A)}
+\begin{algorithmic} 
+	\FORALL { B $\in$ \{\underline{conseguenze} dirette di A\}}
+		\STATE Roll(B)
+	\ENDFOR
+	\STATE $A^{-1}$
+\end{algorithmic}
+\end{algorithm}
+Poiché le azioni dipendenti devono essere annullate in anticipo, l'annullamento di un'azione arbitraria deve comportare l'annullamento di tutto l'albero delle sue conseguenze causali.\\
+\textbf{4)Come sfruttare la consistenza causale per il debugging reversibile}:\\
+Dato un comportamento scorretto che emerge dal programma, per esempio un output sbagliato sullo schermo, si deve trovare la riga di codice contenente il bug che ha causato tale comportamento. In particolare, la riga di codice che esegue l'output potrebbe essere corretta, semplicemente riceve valori errati da elaborazioni passate. Essendo in ambito concorrente, la catena di causalità risulta essere più complessa rispetto all'ambito sequenziale dato che la riga di codice che esegue l'output e quella contenente il bug possono trovarsi in processi diversi. Ciò può risultare ostico per trovare la fonte del bug.\\
+\textbf{Strutturalmente}, una catena causale in ambito concorrente può essere modellata tramite un grafo, mentre in ambito sequenziale risulta essere una lista.
+Detto ciò, la seguente tecnica cattura l'idea di debugging reversibile causal-consistent:
+Dato un comportamente scorretto, possiamo cercare di capire se è sbagliato di per sè (esempio: cercare di fare un secondo binding di una variabile, nel caso di Erlang) oppure cercarne le cause, per poi iternarne la procedura. Le cause di un comportamento scorretto dipendono dall'errore che emerge (per esempio: un valore errato di una variabile dipende dall'ultimo assegnamento della variabile stessa).
+Questa tecnica viene supportata dai meccanismi relativi alla \textit{history} e \textit{roll}. La \textit{history} ci definisce lo stato precedente ed inoltre ci permette di visualizzare l'azione che è la causa dell'errore, mentre \textit{roll} ci permette effettivamente di effettuare l'undo dell'azione che causa l'errore.
+\end{document}

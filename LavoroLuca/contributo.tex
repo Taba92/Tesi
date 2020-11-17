@@ -1,0 +1,17 @@
+\documentclass[Tesi.tex]{subfiles}
+
+\begin{document}
+
+\section{ESTENSIONE DI CAUDER CON ERROR-HANDLING BASATO SUI LINK}
+In questa sezione darò una panoramica dell'estensione effettuata su Cauder, partendo da quali espressione vengono aggiunte al linguaggio, quali strutture dati vengono aggiunte e come le nuove espressioni modifichino tali strutture dati.\\
+La comunicazione di Erlang viene eseguita tramite \textit{segnalazione asincrona}. Tutte le diverse entità in esecuzione, come processi e porte, comunicano tramite segnali \textit{asincroni}\cite{erlangCommunication}.
+Il segnale più comunemente usato è il \textit{messaggio}. Altri segnali comuni sono i segnali di uscita, collegamento, scollegamento, monitoraggio e demonitoraggio.\\
+In questa tesi useremo il termine segnale per riferirci unicamente ai segnali di uscita.
+In BEAM, un \textit{link} \cite{erlangLinks} tra due processi può essere visto come un canale bidirezionale in cui vengono trasmessi gli errori che avvengono nei rispettivi processi linkati.
+Un link tra due processi può essere creato tramite apposite funzioni.\\
+\footnote{Può esistere un solo link tra due processi, quindi qualsiasi tentativo di crearne ulteriori, non produrrà nessun effetto.}
+In questa tesi verrà trattata solo la funzione \textit{spawn\_link}, che sarà spiegata più in dettaglio nella sezione successiva.\\
+Quando un processo si arresta, sia in modo anomalo (esempio: errore di un pattern match) che in modo normale (il codice termina), i segnali di uscita vengono inviati a \textit{tutti} i processi a cui è attualmente linkato il processo morente.
+A seconda di come sia impostato il \textit{flag trap\_exit} di un processo ricevente, il segnale viene gestito in modo differente. Questo flag viene impostato tramite la funzione \textit{process\_flag}, che verrà anch'essa spiegata in dettaglio nella sezione successiva.
+\subfile{./LavoroLuca/EstensioneCauder/estensione}
+\end{document}
