@@ -10,9 +10,9 @@ In questa sottosezione introduco Cauder ovvero:
 	\end{enumerate}
 Per tutta questa sottosezione faccio riferimento a \cite{lanese19}.\\
 \textbf{1) La sintassi supportata:}\\
-La sintassi del linguaggio può essere trovata nella Figura 2 \ref{fig2}. Un modulo è una sequenza di definizioni di funzioni, dove ogni nome di funzione f / n (atom / arity) ha una definizione associata della forma $\displaystyle fun (X_{1},..., X_{n}) \xrightarrow{body} e$.
-Il corpo di una funzione è \underline{un'espressione}, che può includere variabili, letterali, nomi di funzioni, liste, tuple, chiamate a funzioni predefinite, principalmente operatori aritmetici e relazionali, applicazioni di funzioni, espressioni case, associazioni let e espressioni di ricezione; inoltre, consideriamo anche le funzioni \textit{spawn}, \textit{"!"} (per inviare un messaggio) e \textit{self()} (ritorna il pid del processo chiamante) che in realtà sono incorporati nel linguaggio Erlang.
-\begin{figure}[H]
+La sintassi del linguaggio può essere trovata nella Figura \ref{fig2}. Un modulo è una sequenza di definizioni di funzioni, dove ogni nome di funzione f / n (atom / arity) ha una definizione associata della forma $\displaystyle fun (X_{1},..., X_{n}) \xrightarrow{body} e$.
+Il corpo di una funzione è \underline{un'espressione}, che può includere variabili, letterali, nomi di funzioni, liste, tuple, chiamate a funzioni predefinite, principalmente operatori aritmetici e relazionali, applicazioni di funzioni, espressioni case, associazioni let e espressioni di ricezione; inoltre, consideriamo anche le funzioni \textit{spawn}, \textit{"!"} (per inviare un messaggio) e \textit{self()} (ritorna il pid del processo chiamante) che in realtà sono incorporate nel linguaggio Erlang.
+\begin{figure}[!ht]
   $\displaystyle
   \begin{array}{rcl@{~~~~~~}l}
     \mathit{module} & ::= & \mathsf{module} ~ Atom = %%[fname_1,\ldots,fname_n] =
@@ -49,9 +49,9 @@ Il motivo di ciò risiede nel fatto che l'estensione di Cauder risulta mostrare 
 Nel punto relativo alla semantica ometto la spiegazione della receive, in quanto è interessante solo dal punto di vista comportamentale.\\
 \textbf{2) Le strutture dati di Cauder:}\\
 In questa sezione vado a definire le strutture dati gestite da Cauder.
-Nella figura sottostante mostro come lo stato di Cauder viene rappresentato graficamente.
+Nella figura \ref{fig3} sottostante mostro come lo stato di Cauder viene rappresentato graficamente.
 Ad ogni struttura dati che introduco, associerò come essa viene rappresentata internamente in Cauder e come venga rappresentata graficamente, facendo riferimento alla figura sottostante.
-\begin{figure}[H]
+\begin{figure}[!ht]
 	\centerline{\includegraphics[scale=0.5]{./Background/Cauder/Imgs/CauderStato}}
 	\caption{Lo stato di Cauder.}
 	\label{fig3}
@@ -97,16 +97,21 @@ Formalmente \textit{proc} viene denotato tramite \textit{$\langle$ p,$\theta$,e,
 In questo punto introduco la semantica di Cauder. Più precisamente mostro solo un sottoinsieme di queste regole, in quanto le altre non sono rilevanti per questa tesi.
 Evidenzio \textbf{4} regole, che vado ad illustrare, lavorando su un processo generico P \textit{che esegue la regola descritta}, ovvero $\displaystyle \langle p,\theta,e,h,lm\}$ e su un sistema generico S, ovvero $\Gamma$;$\Pi$.\\
 Essendo un linguaggio funzionale ad ogni passo creo delle nuove strutture dati sulla base delle vecchie, costruendo nuovi stati a partire dai precedenti.\\
-Come già accennato in precedenza, sia gli insiemi che le sequenze vengono implementati come \textit{liste}. A livello implementativo, per l'aggiunta di un elemento in una lista, uso la notazione [H$\mid$L], ovvero creo una nuova lista aggiungendo \textit{H} in testa alla lista \textit{L}.
+Come già accennato in precedenza, sia gli insiemi che le sequenze vengono implementati come \textit{liste}. A livello implementativo, per l'aggiunta di un elemento in una lista, uso la notazione [H$\mid$L], ovvero creo una nuova lista aggiungendo \textit{H} in testa alla lista \textit{L}, mentre per l'eliminazione di un elemento H si verificano due casi:
+	\begin{itemize}
+		\item se H è in testa ([H$\mid$L]) prendo solo L.
+		\item se H non è in testa uso un \textit{filter} sulla lista prendendo tutti gli elementi diversi da H.
+	\end{itemize}
 Nella spiegazione della semantica, per la modifica degli insiemi utilizzo la notazione insiemistica mentre per le sequenze utilizzo direttamente la notazione implementativa.
 Ciò viene fatto per tenere evidenziato cosa è un insieme e cosa è una sequenza.
 Denoto le costanti tramite $\mathsf{valore\_atomo}$, mentre per riferirmi ai campi delle strutture dati, utilizzo la notazione punto (esempio: flag di un processo P = P.f).\\
 \textbf{Se non esplicitamente utilizzata, allora mi riferisco ai campi di un processo}.
+Riguardo ai campi $\theta$ ed \textit{e} se non esplicitamente dichiarati, si intende la loro modifica secondo la loro gestione interna da parte di Cauder, poichè non rilevanti in quella specifica regola.
 Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spawn}$ per generare processi, la $\mathsf{send}$ per inviare un messaggio e la $\mathsf{receive}$ per elaborare un messaggio presente nella local mailbox del processo.
-\textbf{Ma non è definito come un messaggio venga recapitato dalla global mailbox alla local mailbox, dato l'asincronicità illustrata all'inizio di questa sezione}. La quarta regola semantica (\textit{rule sched}) serve per simulare questa asincronicità.\\
+\textbf{Ma non è definito come un messaggio venga recapitato dalla global mailbox alla local mailbox, dato l'asincronicità di Erlang detta nell'introduzione}. La quarta regola semantica (\textit{rule sched}) serve per simulare questa asincronicità.\\
 \textbf{SEMANTICA IN AVANTI}:
 \begin{itemize}
-	\item \textit{rule spawn}: Informalmente questa regola va ad inserire in $\Pi$ un \textit{proc} con \textit{history} e \textit{local mailbox} vuote. Formalmente:\\
+	\item \textit{\textbf{rule spawn}}: Informalmente questa regola va ad inserire in $\Pi$ un \textit{proc} con \textit{history} e \textit{local mailbox} vuote. Formalmente:\\
 	Sia P'=$\displaystyle \langle p',\theta'=\empty,e'=\mathsf{apply}(fun(expr_{1}...expr_{n})),h'=[],lm=[]\rangle$ il processo spawnato.\\
 	Sia h''=$\displaystyle [\{\mathsf{spawn},\theta,e,p'\} \mid h]$.\\
 	Sia P''=$\displaystyle \langle p,\theta'',e'',h'',lm\rangle$.\\
@@ -119,7 +124,7 @@ Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spa
 	\item \textit{\textbf{rule sched}}: 
 	Sia msg=\textit{(dest\_pid,payload,time)} il messaggio selezionato per la schedulazione.
 	Sia lm'=[msg $\mid$ lm].
-	Sia P'=$\displaystyle \langle p,\theta,e,h,lm'\rangle$.
+	Sia P'=$\displaystyle \langle p,\theta,e,h,lm'\rangle$.\\
 	Il sistema risultante da questo passaggio sarà S'=$\displaystyle \Gamma\setminus\{msg\};\Pi\setminus\{P\}\cup\{P'\}$.
 \end{itemize}
 \textbf{SEMANTICA ALL'INDIETRO}:
@@ -157,10 +162,10 @@ Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spa
 				\item $\displaystyle \Gamma'=\Gamma\cup\{msg\}$.
 			\end{itemize}
 		In sostanza mi troverei con un messaggio duplicato, che chiaramente viola il Loop Lemma.\\
-		Posto vi sia questa condizione, l'undo di una send si formalizza in questo modo:
-		Sia \textit{msg=(p',val,time)}.
-		Sia h'=$\displaystyle [\{\mathsf{send},\theta,e,msg\} \mid h]$.
-		Sia P'=$\displaystyle \langle p,\theta'=\theta,e'=e,h,lm \rangle$.
+		Posto vi sia questa condizione, l'undo di una send si formalizza in questo modo:\\
+		Sia \textit{msg=(p',val,time)}.\\
+		Sia h'=$\displaystyle [\{\mathsf{send},\theta,e,msg\} \mid h]$.\\
+		Sia P'=$\displaystyle \langle p,\theta'=\theta,e'=e,h,lm \rangle$.\\
 		Allora il sistema evolve in S'=$\displaystyle \Gamma\setminus\{msg\};\Pi\setminus\{P\}\cup\{P'\}$.
 		\item \textit{\textbf{rule sched}}: Informalmente questa regola elimina un \textit{msg} dalla local mailbox del processo destinatario, per reinserirla in $\Gamma$.
 		Come precondizione per effettuare l'undo di una sched, bisogna che il \textit{msg} sia in \underline{testa} alla local mailbox del processo ricevente. Se così non fosse si rischierebbe di violare il Loop Lemma.
@@ -169,9 +174,9 @@ Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spa
 		Se ora facessi l'undo della sched di \textit{msg} per poi rifare subito dopo la sched di \textit{msg} mi ritroverei in quest'altra situazione:\\
 		\textit{lm'=[msg,msg' $\mid$ lm]}.
 		Ho fatto l'undo di un'azione per poi rifarla e mi sono ritrovato in uno stato diverso, violando chiaramente il Loop Lemma.
-		Posto vi sia questa condizione, l'undo della \textit{sched} si formalizza in questo modo:\\
+		Posto vi sia questa condizione, l'undo della sched si formalizza in questo modo:\\
 		Sia \textit{lm=[msg $\mid$ lm']} la local mailbox del processo destinatario di \textit{msg}.\\
-		Sia P'=$\displaystyle \langle p,\theta,e,h,lm' \rangle$.
+		Sia P'=$\displaystyle \langle p,\theta,e,h,lm' \rangle$.\\
 		Allora il sistema evolve in S'=$\displaystyle \Gamma\cup\{msg\};\Pi\setminus\{P\}\cup\{P'\}$.
 	\end{itemize}
 \textbf{ROLL}:\\
@@ -179,7 +184,7 @@ Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spa
 	Indico con \textit{back\_step(S,p)} una funzione che dato uno stato \textit{S} e un pid \textit{p}, osserva l'elemento in cima alla history \textit{h} del processo con pid \textit{p} ed effettua un passo all'indietro su di esso, ritornando il nuovo stato S'.
 	Indico invece con \textit{back\_rule\_xxx} l'undo della \textit{rule\_xxx}.
 	\begin{itemize}
-		\item \textit{\textbf{spawn}}: A livello informale la \textit{roll spawn} va a svuotare la \textit{history} e la \textit{local mailbox} del processo spawnato (annullando tutte le sue conseguenze ricorsivamente), per poi infine fare l'undo della spawn di esso. Algoritmicamente:
+		\item \textit{\textbf{spawn}}: A livello informale la \textit{roll spawn} va a svuotare la \textit{history} e la \textit{local mailbox} del processo spawnato (annullando tutte le sue conseguenze ricorsivamente), per poi infine fare l'undo della spawn di esso. Algoritmicamente:\\
 		Sia $\displaystyle h=[\{\mathsf{spawn},\theta,e,p'\} \mid h']$.\\
 		Sia P' il processo con pid \textit{p'}.
 		\begin{algorithm}[H]
@@ -193,10 +198,10 @@ Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spa
 		\ENDIF
 		\end{algorithmic}
 		\end{algorithm}
-		\item \textit{\textbf{rule send}}: 
-		A livello informale la \textit{roll send} va a riportare un \textit{msg} all'interno di $\Gamma$, per poi effettuare l'undo della send. Diversamente dalla \textit{roll spawn}, la \textit{roll send} deve anche valutare le conseguenze derivate dalla schedulazione del messaggio oltre che le conseguenze del processo destinatario. Algoritmicamente:
-		Sia \textit{msg=(p',val,time)}.
-		Sia h=$\displaystyle [\{\mathsf{send},\theta,e,msg\} \mid h_{old}]$.
+		\item \textit{\textbf{send}}: 
+		A livello informale la \textit{roll send} va a riportare un \textit{msg} all'interno di $\Gamma$, per poi effettuare l'undo della send. Diversamente dalla \textit{roll spawn}, la \textit{roll send} deve anche valutare le conseguenze derivate dalla schedulazione del messaggio oltre che le conseguenze del processo destinatario. Algoritmicamente:\\
+		Sia \textit{msg=(p',val,time)}.\\
+		Sia h=$\displaystyle [\{\mathsf{send},\theta,e,msg\} \mid h_{old}]$.\\
 		Sia \textit{lm'} la localmail box di P'.
 		\begin{algorithm}[H]
 		\caption{roll\_send(State,p,p',time)}

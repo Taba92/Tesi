@@ -53,7 +53,7 @@ Lo \textit{scheduler} viene modificato tramite l'estensione dell'opzione PRIO\_R
 		\item \textit{type}=$\mathsf{error}$ oppure $\mathsf{normal}$ denota il tipo di segnale, ovvero un errore o una terminazione normale del codice.
 		\item \textit{reason} denota, nel caso di errore, la ragione per cui l'errore si è verificato.
 			  Nel caso di \textit{type}=$\mathsf{normal}$, \textit{reason} sarà uguale ad $\mathsf{undefined}$.
-		\item \textit{time} analogo come per i messaggi.Da notare che, \textbf{in questa specifica estensione}, il campo \textit{time} non è necessario per la discriminazione dei segnali in sè, bensì, nel caso il \textit{flag} del processo ricevente fosse $\mathsf{true}$ e quindi quel segnale fosse convertito in messaggio, serve per discriminare quel particolare messaggio che verrà creato.
+		\item \textit{time} analogo come per i messaggi. Da notare che, \textbf{in questa specifica estensione}, il campo \textit{time} non è necessario per la discriminazione dei segnali in sè, bensì, nel caso il \textit{flag} del processo ricevente fosse $\mathsf{true}$ e quindi quel segnale fosse convertito in messaggio, serve per discriminare quel particolare messaggio che verrà creato.
 	\end{itemize}
 In Cauder \textit{Signal} si traduce nel tipo \textit{record signal} composto da:
 	\begin{itemize}
@@ -76,7 +76,7 @@ La figura sottostante mostra graficamente lo stato di Cauder esteso. Viene aggiu
 		\label{fig4}
 	\end{figure}
 \subsection{Estensione della semantica}
-Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono aggiunte e quali effetti producono, assieme alle nuove features di sistema, andrò a definire, \textbf{come nel punto 3 della sezione 2.2}, la semantica reversibile estesa del nuovo linguaggio, lavorando su un processo generico P esteso \textit{che esegue la regola descritta}, ovvero $\displaystyle \langle p,\theta,e,h,lm,l,f \rangle$ e su un sistema generico S esteso, ovvero $\displaystyle \Gamma;\Psi;\Pi$.\\
+Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono aggiunte e quali effetti producono, assieme alle nuove strutture dati di sistema, andrò a definire, \textbf{come nel punto 3 della sezione 2.2}, la semantica reversibile estesa del nuovo linguaggio, lavorando su un processo generico P esteso \textit{che esegue la regola descritta}, ovvero $\displaystyle \langle p,\theta,e,h,lm,l,f \rangle$ e su un sistema generico S esteso, ovvero $\displaystyle \Gamma;\Psi;\Pi$.\\
 \textbf{SEMANTICA IN AVANTI}:\\
 	Alle varie regole che seguiranno, associerò la loro relativa rappresentazione grafica utilizzando il tool \textit{Graphic Viewer} integrato in Cauder. Qui sotto riporto alcune immagini di esempio in cui spiego a grandi linee come interpretare le visualizzazioni del \textit{Graphic Viewer}, con riferimento a \cite{et}.\\
 	In relazione alla figura sottostante, i numeri rossi in alto, sopra le linee verticali colorate, indicano il pid di un processo. Le linee verticali possono assumere due colorazioni: \textit{verde} se il processo è presente nel sistema ed è attivo, \textit{rosso} se il processo è presente nel sistema ma non è attivo. Una freccia uscente da un pallino, indica un'azione eseguita da un processo verso un altro processo, con la relativa \textit{label} sopra di essa, indicante che tipo di azione viene eseguita. Se un'azione non coinvolge un secondo processo oppure si ha un invio di qualche informazione \underline{senza aver effettuato la relativa ricezione} (vedi \textit{send} qui sopra), allora verrà rappresentato solo da un pallino, composta dalla \textit{label e dalla relativa informazione}.
@@ -104,21 +104,25 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 	\begin{itemize}
 		\item $\mathsf{Process\_flag}$: 
 		La chiamata a $\mathsf{process\_flag}$, oltre a settare il flag del processo al valore booleano passato come argomento, ritorna il vecchio flag del processo che chiamerò \textit{OldBool}.
-		Ciò si concretizza in Cauder, cambiando il campo \textit{f} di P in \textit{f'} settato a \textit{Bool}, mentre \textit{h} di P evolve $\displaystyle h'=[\{\mathsf{process\_flag},\theta,e,OldBool\} \mid h ]$.
-		Sia P'=$\displaystyle \langle p,\theta,e',h',lm,l,f'=Bool \rangle$, lo stato risultante da questo passaggio sarà
-		S'=$\displaystyle \Gamma;\Psi;\Pi\setminus\{P\}\cup\{P'\}$.\\
+		Ciò si concretizza in Cauder, cambiando il campo \textit{f} di P in \textit{f'} settato a \textit{Bool}.\\
+		Sia $\displaystyle h'=[\{\mathsf{process\_flag},\theta,e,OldBool\} \mid h ]$.\\
+		Sia P'=$\displaystyle \langle p,\theta,e',h',lm,l,f'=Bool \rangle$.\\
+		Lo stato risultante da questo passaggio sarà S'=$\displaystyle \Gamma;\Psi;\Pi\setminus\{P\}\cup\{P'\}$.\\
 		Nel graphic viewer, in relazione alla figura \ref{fig7}, $\mathsf{process\_flag}$ viene mostrata tramite la label \textit{p\_flag=Bool} con Bool= T (true) or F (false).
 		\item $\mathsf{Spawn\_link}$: 
 		La funzione $\mathsf{spawn\_link}$ è molto simile alla funzione $\mathsf{spawn}$, con la differenza che opera anche sui link tra processi, per cui nella descrizione della semantica di essa, tratterò solo la parte relativa ai link.\\
-		La chiamata a $\mathsf{spawn\_link}$, oltre a creare un nuovo processo P' vuoto, setta i relativi link nei due processi coinvolti.\\
-		Più formalmente, viene creato un P'=$\displaystyle \langle p',\theta'= \emptyset,e',h'=[],lm'=[],l'=\{p\},f'=false \rangle$, mentre P evolve in P''=$\displaystyle \langle p,\theta,e'',h'',lm,l''=l \cup\{p'\},f \rangle$ \\con h''=$\displaystyle [\{\mathsf{spawn\_link},\theta,e,p'\} \mid h]$.
+		La chiamata a $\mathsf{spawn\_link}$, oltre a creare un nuovo processo P' vuoto, setta i relativi link nei due processi coinvolti. Più formalmente:\\
+		Sia $\displaystyle h''=[\{\mathsf{spawn\_link},\theta,e,p'\} \mid h]$.\\
+		Sia P'=$\displaystyle \langle p',\theta'= \emptyset,e',h'=[],lm'=[],l'=\{p\},f'=false \rangle$ il processo spawnato.\\
+		Il processo P evolve in P''=$\displaystyle \langle p,\theta,e'',h'',lm,l''=l \cup\{p'\},f \rangle$.\\
 		Il sistema risultante da questo passaggio sarà S'=$\Gamma$;$\Psi$;$\Pi$$\setminus$\{P\}$\cup$\{P',P''\}.
 		Nel graphic viewer, in relazione a \ref{fig7}, $\mathsf{spawn\_link}$ viene mostrata tramite la label \textit{spawn\_link}.
 		\item $\mathsf{Error~e~exit}$: 
-		Semanticamente, queste due regole sono molto simili tra loro, in quanto aggiungono o tolgono lo stesso tipo di informazioni.Indico con \textit{call}= $\mathsf{error}$ se avviene una chiamata ad $\mathsf{error}$ o $\mathsf{exit}$ se avviene una chiamata ad $\mathsf{exit}$, mentre con \textit{callExp}\footnote{Sarebbe l'espressione risultante dalla chiamata ad una di esse.Da notare che entrambe le chiamate non hanno nessun valore di ritorno, ma gli si associa una delle tuple di seguito per indicare la terminazione e che tipo di terminazione.}
-		\{$\mathsf{exit}$,Reason\} nel caso di chiamata ad $\mathsf{exit}$ o \{$\mathsf{error}$,Reason,stack\} nel caso di chiamata ad $\mathsf{error}$.\\
-		Sia h'=$\displaystyle [\{call,\theta,e,Reason\} \mid h]$.
-		Il processo P evolve in P'=$\displaystyle \langle p,\theta,e'=callExp,h',lm,l,f \rangle$, con il sistema S che evolve in S'=$\displaystyle \Gamma;\Psi;\Pi\setminus\{P\}\cup\{P'\}$.
+		Semanticamente, queste due regole sono molto simili tra loro, in quanto aggiungono o tolgono lo stesso tipo di informazioni. Indico \textit{call}= $\mathsf{error}$ se avviene una chiamata ad $\mathsf{error}$ o $\mathsf{exit}$ se avviene una chiamata ad $\mathsf{exit}$, mentre con \textit{callExp}\footnote{Sarebbe l'espressione risultante dalla chiamata ad una di esse. Da notare che entrambe le chiamate non hanno nessun valore di ritorno, ma gli si associa una delle tuple di seguito per indicare la terminazione e che tipo di terminazione.}
+		\{$\mathsf{exit}$,Reason\} nel caso di chiamata ad $\mathsf{exit}$ o \{$\mathsf{error}$,Reason,$\mathsf{stack}$\} nel caso di chiamata ad $\mathsf{error}$.\\
+		Sia h'=$\displaystyle [\{call,\theta,e,Reason\} \mid h]$.\\
+		Il processo P evolve in P'=$\displaystyle \langle p,\theta,e'=callExp,h',lm,l,f \rangle$.\\
+		Il sistema S che evolve in S'=$\displaystyle \Gamma;\Psi;\Pi\setminus\{P\}\cup\{P'\}$.
 		Non essendo visualizzato nel tab \textit{trace} di Cauder, non lo rappresento neanche nel graphic viewer.\\
 		\item $\mathsf{Propagazione~dei~segnali}$:
 		Concettualmente, la propagazione dei segnali risulta essere molto simile alla \textit{rule send}, in quanto un carico di informazioni viene inviato e immagazzinato in una struttura dati aggiuntiva in attesa di essere consegnata.
@@ -140,19 +144,22 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 		\textit{Questa precondizione si applica a tutte le casistiche che verranno proposte}.
 		Posto che vi sia questa condizione, si presentato 4 casistiche relative alla ricezione dei segnali, che dipendono dal valore del \textit{process\_flag} del processo ricevente.\\
 		Per ognuna delle casistiche, il sistema  S evolve  togliendo il segnale schedulato da $\Psi$ e aggiungendo P' e togliendo P ad $\Pi$, quindi presenterò solo come evolve P in P', sottintendendo, alla fine, l'evoluzione di S in S'.
-		Quindi selezionato il segnale da schedulare, \textbf{in base al time}, se:
+		Quindi selezionato il segnale \textit{s} da schedulare, \textbf{in base al time}, se:
 			\begin{enumerate}
-			\item signal.type=$\mathsf{error}$ $\wedge$ f=$\mathsf{true}$:\\
-				Sia lm'=$\displaystyle [\{\{\mathsf{EXIT},signal.from,signal.reason\},signal.time\} \mid lm]$.\\
-				Sia h'=$\displaystyle[\{\mathsf{signal},signal.from,error,signal.reason,signal.time\} \mid h]$.\\
-				Il processo P evolve in P'=$\displaystyle \langle p,\theta,e,h',lm',l'=l\setminus\{signal.from\},f \rangle$.
-			\item signal.type=$\mathsf{error}$ $\wedge$ f=$\mathsf{false}$:\\
-				Sia h'=$\displaystyle [\{\mathsf{signal},signal.from,error,\theta,e,signal.time\} \mid h]$.\\
-				Il processo P evolve in P'=$\displaystyle \langle p,\theta,e'=\{\mathsf{error},signal.reason,stack\},h',lm,l'=l \setminus\{signal.from\},f \rangle$.
+			\item $\displaystyle s.type=\mathsf{error} \wedge f=\mathsf{true}$:\\
+				Sia lm'=$\displaystyle [\{\{\mathsf{EXIT},s.from,s.reason\},s.time\} \mid lm]$.\\
+				Sia h'=$\displaystyle[\{\mathsf{signal},s.from,error,s.reason,s.time\} \mid h]$.\\
+				Il processo P evolve in P'=$\displaystyle \langle p,\theta,e,h',lm',l'=l\setminus\{s.from\},f \rangle$.
+			\item $\displaystyle s.type=\mathsf{error} \wedge f=\mathsf{false}$:\\
+				Sia h'=$\displaystyle [\{\mathsf{signal},s.from,error,\theta,e,s.time\} \mid h]$.\\
+				Sia e'= \{$\mathsf{error}$,s.reason,stack\}.\\
+				Il processo P evolve in P'=$\displaystyle \langle p,\theta,e',h',lm,l'=l \setminus\{s.from\},f \rangle$.
 				Il motivo per cui viene tolto solo il link del processo che ha inviato il segnale, risiede nel fatto che il processo ricevente potrà ripropagare a tutti i suoi processi linkati il segnale di errore appena ricevuto.
-			\item signal.type=$\mathsf{normal}$ $\wedge$ f=$\mathsf{true}$:
-				Il processo P evolve in P' in maniera simile al caso 1, con l'unica differenza nel campo h', che viene aggiunta la tupla \{'signal',signal.from,normal,signal.time\} al posto dell'altra, che segnala un terminazione normale del codice.
-			\item signal.type=$\mathsf{normal}$ $\wedge$ f=$\mathsf{false}$:
+			\item $\displaystyle s.type=\mathsf{normal} \wedge f=\mathsf{true}$:\\
+				Il processo P evolve in P' in maniera simile al caso 1, con l'unica differenza che nel campo h' viene aggiunta la tupla:\\
+				$\displaystyle \{\mathsf{signal},s.from,normal,s.time\}$\\
+				che segnala un terminazione normale del codice.
+			\item signal.type=$\mathsf{normal}$ $\wedge$ f=$\mathsf{false}$:\\
 				Il processo P evolve in P' in maniera simile al caso 3, con l'unica differenza che non viene creato il messaggio, ma viene solo rotto il link col processo che ha propagato il segnale.
 			\end{enumerate}
 		In relazione alla figura \ref{fig7}, l'et\_context\_viewer con \textbf{label}= signal) mostra la ricezione del segnale con time=1 da parte del processo 3.\\
@@ -160,12 +167,15 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 	\end{itemize}
 \textbf{SEMANTICA ALL'INDIETRO}:
 	\begin{itemize}
-		\item $\mathsf{Process\_flag}$: Avendo h=$\displaystyle [\{\mathsf{process\_flag},\theta_{old},e_{old},OldBool\} \mid h']$, per effettuare l'undo del process flag, banalmente si crea un P'= $\displaystyle \langle p,\theta_{old},e_{old},h',lm,l,f'=OldBool \rangle$.\\
+		\item $\mathsf{Process\_flag}$:\\
+		Sia h=$\displaystyle [\{\mathsf{process\_flag},\theta_{old},e_{old},OldBool\} \mid h']$.\\
+		P evolve in P'= $\displaystyle \langle p,\theta_{old},e_{old},h',lm,l,f'=OldBool \rangle$.\\
 		Il sistema evolve come nella semantica in avanti, togliendo P ed inserendo P'.
 		\item $\mathsf{Spawn\_link}$:
-		Per poter effettuare un passo all'indietro della spawn\_link, si ha la stessa precondizione relativa alla spawn, ovvero il processo spawnato deve essere "vuoto". \\
-		Avendo h=$\displaystyle [\{\mathsf{spawn\_link},\theta_{old},e_{old},p_{spawn}\} \mid h']$,\\
-		si crea un processo P''=$\displaystyle \langle p,\theta_{old},e_{old},h',l'=l \setminus \{p_{spawn}\},f \rangle$.
+		Per poter effettuare un passo all'indietro della spawn\_link, si ha la stessa precondizione relativa alla spawn, ovvero il processo spawnato deve essere avere \textit{history} e \textit{local mailbox} vuote.\\
+		Sia h=$\displaystyle [\{\mathsf{spawn\_link},\theta_{old},e_{old},p_{spawn}\} \mid h']$.\\
+		Sia P' il processo con pid $\mathsf{p_{spawn}}$.\\
+		P evolve in P''=$\displaystyle \langle p,\theta_{old},e_{old},h',l'=l \setminus \{p_{spawn}\},f \rangle$.\\
 		Il sistema evolve in S'=$\displaystyle \Gamma;\Psi;\Pi\setminus\{P,P'\}\cup\{P''\}$.
 		\item $\mathsf{Error~e~exit}$: Sia h=$\displaystyle [\{call,\theta_{old},e_{old},Reason\} \mid h']$.\\
 		Banalmente, il processo P evolve in P'=$\displaystyle \langle p,\theta_{old},e_{old},h',lm,l,f \rangle$ ed S evolve allo stesso modo della semantica in avanti.
@@ -175,15 +185,15 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 		Posta che vi sia questa condizione, l'undo della propagazione ritira tutti i segnali emessi dal processo morente, ricreando i link rotti.
 		Più formalmente:\\
 		Sia h=$\displaystyle [\{\mathsf{propag},\theta_{old},e_{old},histSignals\} \mid h']$.\\
-		Sia oldLinks=$\displaystyle  \bigcup_{histSig \in histSignals}histSig.link $.\\ 
-		Sia signals=$\displaystyle \bigcup_{histSig \in histSignals}\{histSig.link,p,histSig.type,histSig.reason,histSig.time\}$.\\
-		Allora P'=$\displaystyle \langle p,\theta_{old},e_{old},h',lm,l=oldLinks,f \rangle$.
+		Sia oldLinks=$\displaystyle  \bigcup_{hS \in histSignals}hS.link $.\\ 
+		Sia signals=$\displaystyle \bigcup_{hS \in histSignals}\{hS.link,p,hS.type,hS.reason,hS.time\}$.\\
+		Allora P'=$\displaystyle \langle p,\theta_{old},e_{old},h',lm,l=oldLinks,f \rangle$.\\
 		Il sistema S evolve in S'=$\displaystyle \Gamma;\Psi \setminus signals;\Pi \setminus \{P\} \cup \{P'\} $.
 		\item \underline{Ricezione segnali}: Anche nell'undo della schedulazione di un segnale si presentato 4 casistiche, in funzione delle informazioni in \textit{h} ed eventualmente di \textit{f} in quell'istante.
 		Ogni casistica può avere una sua precondizione, che definisco in quella specifica casistica.
 		In ogni casistica, dopo aver evoluto P in P', ciò che viene fatto è:
 		\begin{enumerate}
-			\item Ricreare il segnale \textit{signal}, date le informazioni necessarie nella history, ed evolvere $\Psi$ in $\Psi'$=$\Psi$ $\cup$ \{signal\}.
+			\item Ricreare il segnale \textit{s}, date le informazioni necessarie nella history, ed evolvere $\Psi$ in $\Psi'$=$\Psi$ $\cup$ \{s\}.
 			\item Evolvere $\Pi$ in $\Pi'$=$\Pi$ $\setminus{P}$ $\cup{P'}$.
 			\item Evolvere il sistema S in S'=$\displaystyle \Gamma;\Psi';\Pi'$.
 		\end{enumerate}
@@ -191,10 +201,14 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 		\begin{enumerate}
 		\item h=$\displaystyle [\{\mathsf{signal},from,\mathsf{error},reason,time\} \mid h']$:\\
 			  Indica un ricezione di un  segnale di errore $\wedge$ \textit{f}=$\mathsf{true}$(vedi h del caso 1 nella semantica in avanti).
-			  Come precondizione, questa casistica necessita che il relativo messaggio derivato dal segnale, \textit{sia in cima ad lm}, ovvero lm=$\displaystyle [\{\{\mathsf{EXIT},signal.from,signal.reason\},signal.time\} \mid lm']$. Se non ci fosse questa precondizione, si rischierebbe di violare il Loop Lemma. Ipotizziamo di essere in questa situazione:
-			  lm=[\{\{$\mathsf{EXIT}$,error,reason\},2\},\{"ciao",3\}].Se facessi l'undo del segnale, per poi rischedularlo al passo successivo, mi troverei con lm=[\{"ciao",3\},\{\{$\mathsf{EXIT}$,error,reason\},2\}], ovvero il messaggio generato dal segnale si ritroverebbe in testa.
+			  Come precondizione, questa casistica necessita che il relativo messaggio derivato dal segnale, \textit{sia in cima ad lm}, ovvero lm=$\displaystyle [\{\{\mathsf{EXIT},s.from,s.reason\},s.time\} \mid lm']$.\\
+			  Se non ci fosse questa precondizione, si rischierebbe di violare il Loop Lemma. Ipotizziamo di essere in questa situazione:\\
+			  lm=[\{\{$\mathsf{EXIT}$,error,reason\},2\},\{"ciao",3\}].\\
+			  Se facessi l'undo del segnale, per poi rischedularlo al passo successivo, mi troverei con lm=[\{"ciao",3\},\{\{$\mathsf{EXIT}$,error,reason\},2\}], ovvero il messaggio generato dal segnale si ritroverebbe in testa.
 			  Da uno stato S, ho fatto l'undo di un'azione per poi rifarla e mi son ritrovato in uno stato S'$\neq$S, infrangendo il Loop Lemma.
-			  Detto questo, avendo lm=$\displaystyle [\{\{\mathsf{EXIT},signal.from,signal.reason\},signal.time\} \mid lm']$, \\si ha P'=$\displaystyle \langle p,\theta,e,h',lm',l \cup \{from\},f \rangle$.
+			  Detto questo:\\
+			  Sia lm=$\displaystyle [\{\{\mathsf{EXIT},s.from,s.reason\},s.time\} \mid lm']$.\\
+			  P evolve in P'=$\displaystyle \langle p,\theta,e,h',lm',l \cup \{from\},f \rangle$.\\
 			  Da notare che $\theta$ ed \textit{e} rimangono inalterati.
 		\item h=$\displaystyle [\{\mathsf{signal},from,\mathsf{error},\theta_{old},e_{old},time\} \mid h']$:\\
 			  Indica una ricezione di un segnale di errore $\wedge$ \textit{f}=$\mathsf{false}$(vedi h del caso 2 nella semantica in avanti).
@@ -202,10 +216,10 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 			  Detto ciò, evolvo P in P'=$\displaystyle \langle p,\theta_{old},e_{old},lm,l \cup \{from\},f \rangle$.
 		\item h=$\displaystyle [\{\mathsf{signal},signal.from,\mathsf{normal},signal.time\} \mid h']$:\\
 			  Indica una ricezione di terminazione normale.
-			  In questo caso il tipo di comportamento della regola, lo posso discriminare in base a \textit{f} in quell'istante.
-			  \textit{Sia f}=$\mathsf{true}$.\\
-			  Allora diventa analogo al caso 1 della semantica all'indietro, ovviamente ricostruendo un \textit{signal} di type=$\mathsf{normal}$.
-			  \textit{Sia f}=$\mathsf{false}$.\\
+			  In questo caso il tipo di comportamento della regola, lo posso discriminare in base a \textit{f} di P in quell'istante.\\
+			  \textit{Sia f}=$\mathsf{true}$:\\
+			  Allora diventa analogo al caso 1 della semantica all'indietro, ovviamente ricostruendo un \textit{signal} di type=$\mathsf{normal}$.\\
+			  \textit{Sia f}=$\mathsf{false}$:\\
 			  Banalmente P evolve in P'=$\displaystyle \langle p,\theta,e,h',lm,l \cup \{from\},f \rangle$.
 	\end{enumerate}
 	\end{itemize}
