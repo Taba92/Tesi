@@ -2,7 +2,7 @@
 
 \begin{document}
 \subsection{Reversibilità ed applicazione al debugging}
-In questa sezione fisserò il \textbf{tragitto} che parte dalla nozione di reversibilità fino all'applicazione di essa al debugging, in cui faccio riferimento a \cite{lanese18}.
+In questa sezione fisserò il \textbf{tragitto} che parte dalla nozione di reversibilità fino all'applicazione di essa al debugging, seguendo l'approccio di \cite{lanese18}.
 Questo tragitto si articola nei passi seguenti, che verranno enfatizzati nelle sezioni successive:
 \begin{enumerate}
 	\item Quale nozione di reversibilità serve nei sistemi concorrenti
@@ -21,16 +21,16 @@ Denoto con $A_{n}$ l'ennesima occorrenza di A in $\sigma$.
 \begin{CausalTrace}
 $\sigma$ è causal-consistent $\iff$ $\forall$ $A_{n}$ e $B_{m}$, che sia compresa tra $A_{n}$ e $A_{n}^{-1}$, o $B_{m}$ non è conseguenza di $A_{n}$ oppure $B_{m}^{-1}$ è prima di $A_{n}^{-1}$.
 \end{CausalTrace}
-Ecco come la \textit{causalità}, espressa nell'introduzione, prende forma in questa nozione. La consistenza-causale poggia le sue basi sul \textit{Loop Lemma}, che si formalizza nei due assiomi a seguire.
+Ecco come la \textit{causalità}, espressa nell'introduzione, prende forma in questa nozione. La consistenza-causale poggia le sue basi sul \textit{Loop Lemma}, che si formalizza nei due lemmi a seguire.
 Informalmente questo lemma afferma che l'esecuzione di un'azione e poi l'immediato annullamento di essa, dovrebbe ricondurre allo stato di partenza.
 Formalmente:
-\newtheorem{ax1}{Assioma Loop Lemma}
+\newtheorem*{ax1}{Loop Lemma 1}
 	\begin{ax1}
- 		$\displaystyle S\xrightarrow{A}S'\xrightarrow{A^{-1}}S$: Se da uno stato S eseguo un'azione A per poi annullarna nel passo successivo, allora devo ritornare allo stato S.
+ 		$\displaystyle S\xrightarrow{A}S' \Rightarrow S'\xrightarrow{A^{-1}}S$: Se da uno stato S eseguo un'azione A per poi annullarna nel passo successivo, allora devo ritornare allo stato S.
 	\end{ax1}
-\newtheorem{ax2}{Assioma Loop Lemma}
+\newtheorem*{ax2}{Loop Lemma 2}
 	\begin{ax2}
- 		$\displaystyle S\xrightarrow{A^{-1}}S'\xrightarrow{A}S$: Se da uno stato S eseguo l'undo di A per poi rifare A, allora devo ritornare allo stato S.
+ 		$\displaystyle S\xrightarrow{A^{-1}}S' \Rightarrow S'\xrightarrow{A}S$: Se da uno stato S eseguo l'undo di A per poi rifare A, allora devo ritornare allo stato S.
 	\end{ax2}
 Questo lemma risulta essere importante, in quanto ci assicura di effettuare passi all'indietro in \textbf{modo univocamente definito}. Se così non fosse, ad ogni passo all'indietro, accederei ad un'ulteriore sotto-albero di computazione, cosa che si rivelerebbe totalmente inutile per il debugging.\\
 \textbf{2)Quale informazione devo memorizzare}:\\
@@ -57,6 +57,6 @@ Poiché le azioni dipendenti devono essere annullate in anticipo, l'annullamento
 Dato un comportamento scorretto che emerge dal programma, per esempio un output sbagliato sullo schermo, si deve trovare la riga di codice contenente il bug che ha causato tale comportamento. In particolare, la riga di codice che esegue l'output potrebbe essere corretta, semplicemente riceve valori errati da elaborazioni passate. Essendo in ambito concorrente, la catena di causalità risulta essere più complessa rispetto all'ambito sequenziale dato che la riga di codice che esegue l'output e quella contenente il bug possono trovarsi in processi diversi. Ciò può risultare ostico per trovare la fonte del bug.\\
 \textbf{Strutturalmente}, una catena causale in ambito concorrente può essere modellata tramite un grafo, mentre in ambito sequenziale risulta essere una lista.
 Detto ciò, la seguente tecnica cattura l'idea di debugging reversibile causal-consistent:
-Dato un comportamente scorretto, possiamo cercare di capire se è sbagliato di per sè (esempio: cercare di fare un secondo binding di una variabile, nel caso di Erlang) oppure cercarne le cause, per poi iternarne la procedura. Le cause di un comportamento scorretto dipendono dall'errore che emerge (per esempio: un valore errato di una variabile dipende dall'ultimo assegnamento della variabile stessa).
+Dato un comportamente scorretto, possiamo cercare di capire se è sbagliato di per sè (esempio: un errore logico) oppure cercarne le cause, per poi iternarne la procedura. Le cause di un comportamento scorretto dipendono dall'errore che emerge (per esempio: un valore errato di una variabile dipende dall'ultimo assegnamento della variabile stessa).
 Questa tecnica viene supportata dai meccanismi relativi alla \textit{history} e \textit{roll}. La \textit{history} ci definisce lo stato precedente ed inoltre ci permette di visualizzare l'azione che è la causa dell'errore, mentre \textit{roll} ci permette effettivamente di effettuare l'undo dell'azione che causa l'errore.
 \end{document}

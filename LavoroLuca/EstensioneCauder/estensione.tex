@@ -2,19 +2,19 @@
 
 \begin{document}
 \subsection{Estensione della sintassi del linguaggio}
-La sintassi del linguaggio mostrata in 2.2 viene estesa tramite queste 4 espressioni:
+La sintassi del linguaggio mostrata in 2.2 viene estesa tramite queste 4 espressioni e mostrata in figura \ref{newrules}:
 \begin{itemize}
 	\item $\displaystyle \mathsf{process\_flag}(\mathsf{trap\_exit},Boolean)\xrightarrow{return}OldBool$: Se \textit{Boolean}=$\mathsf{true}$, i segnali di uscita che arrivano al processo chiamante vengono convertiti in messaggi \textit{\{'EXIT', From, Reason\}}, che possono essere ricevuti come messaggi ordinari. 
 	Se \textit{Boolean}=$\mathsf{false}$, il processo chiamante \textit{termina} se riceve un segnale di uscita diverso da \textit{Reason}=$\mathsf{normal}$, \textbf{che a sua volta viene ripropagato a tutti i processi collegati con esso e cosi vià}.
 	La chiamata a $\mathsf{process\_flag}$ ritorna il valore del vecchio flag(\textit{OldBool}).
-	\item $\displaystyle \mathsf{spawn\_link}(expr, [expr_{1},...,expr_{n}])\xrightarrow{return}SpawnedPid$: funziona esattamente per la $\mathsf{spawn}$, con l'aggiunta che si linka \textit{atomicamente} con \textit{SpawnedPid}.
+	\item $\displaystyle \mathsf{spawn\_link}(expr, [expr_{1},...,expr_{n}])\xrightarrow{return}SpawnedPid$: funziona esattamente per la $\mathsf{spawn}$, con l'aggiunta che il processo spawnato si linka \textit{atomicamente} con \textit{SpawnedPid}.
 	\item $\displaystyle \mathsf{exit}(Reason)\xrightarrow{no\_return}$: il processo chiamante termina con motivo di uscita Reason.
 	Se \textit{Reason}=$\mathsf{normal}$, viene intesa come \textit{normale} terminazione del codice, altrimenti segnala una terminazione \textit{anomala} con motivo \textit{Reason}.
 	\item $\displaystyle \mathsf{error}(Reason)\xrightarrow{no\_return}$: il processo chiamante termina in modo \textit{anomalo} la sua esecuzione con motivo \textit{Reason}.
 	A differenza di $\mathsf{exit}$, $\mathsf{error}$ segnala \textbf{sempre} un errore durante l'esecuzione.
 	Errori a run-time, tipo divisioni per 0 ecc., equivalgono ad una chiamata a $\mathsf{error}$, con la relativa \textit{Reason}.
 \end{itemize}
-\begin{figure}[H]
+\begin{figure}[!ht]
   $\displaystyle
   \begin{array}{rcl@{~~~~~~}l}
     \mathit{module} & ::= & \mathsf{module} ~ Atom = %%[fname_1,\ldots,fname_n] =
@@ -48,7 +48,7 @@ Ciò in Cauder si traduce con l'aggiunta al tipo \textit{record sys} di un campo
 Lo \textit{scheduler} viene modificato tramite l'estensione dell'opzione PRIO\_RANDOM, in cui viene data priorità anche ai \textit{segnali} assieme ai \textit{processi}.
 \textit{Signal} è una tupla del tipo \textit{\{p',p,type,reason,time\}} dove:
 	\begin{itemize}
-		\item \textit{p'} denota il pid del processo a cui recapitare il signale.
+		\item \textit{p'} denota il pid del processo a cui recapitare il segnale.
 		\item \textit{p} denota il pid del processo che ha generato il segnale.
 		\item \textit{type}=$\mathsf{error}$ oppure $\mathsf{normal}$ denota il tipo di segnale, ovvero un errore o una terminazione normale del codice.
 		\item \textit{reason} denota, nel caso di errore, la ragione per cui l'errore si è verificato.
@@ -72,10 +72,10 @@ In Cauder si traduce nell'aggiunta, al tipo \textit{record proc} di un campo \te
 La figura sottostante mostra graficamente lo stato di Cauder esteso. Viene aggiunto \textit{GS} che corrisponde a $\Psi$ (\textit{signals}), mentre la struttura dati del processo viene estesa tramite l'aggiunta di \textit{PROC\_FLAG} che corrisponde a \textit{f} (\textit{flag}) ed \textit{LINKS} che corrisponde ad \textit{l} (\textit{links}).
 \begin{figure}[H]
 		\centerline{\includegraphics[scale=0.5]{./LavoroLuca/EstensioneCauder/Imgs/CauderStatoEsteso}}
-		\caption{Stat di Cauder esteso.}
+		\caption{Stato di Cauder esteso.}
 		\label{fig4}
 	\end{figure}
-\subsection{Le regole indotte dalla nuova sintassi}
+\subsection{Estensione della semantica}
 Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono aggiunte e quali effetti producono, assieme alle nuove features di sistema, andrò a definire, \textbf{come nel punto 3 della sezione 2.2}, la semantica reversibile estesa del nuovo linguaggio, lavorando su un processo generico P esteso \textit{che esegue la regola descritta}, ovvero $\displaystyle \langle p,\theta,e,h,lm,l,f \rangle$ e su un sistema generico S esteso, ovvero $\displaystyle \Gamma;\Psi;\Pi$.\\
 \textbf{SEMANTICA IN AVANTI}:\\
 	Alle varie regole che seguiranno, associerò la loro relativa rappresentazione grafica utilizzando il tool \textit{Graphic Viewer} integrato in Cauder. Qui sotto riporto alcune immagini di esempio in cui spiego a grandi linee come interpretare le visualizzazioni del \textit{Graphic Viewer}, con riferimento a \cite{et}.\\
@@ -149,7 +149,7 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 			\item signal.type=$\mathsf{error}$ $\wedge$ f=$\mathsf{false}$:\\
 				Sia h'=$\displaystyle [\{\mathsf{signal},signal.from,error,\theta,e,signal.time\} \mid h]$.\\
 				Il processo P evolve in P'=$\displaystyle \langle p,\theta,e'=\{\mathsf{error},signal.reason,stack\},h',lm,l'=l \setminus\{signal.from\},f \rangle$.
-				Il motivo per cui viene tolto solo il link del processo che ha inviato il segnale, risiede nel fatto che il processo ricevente potrà ripropagare a tutti i suoi processi linkati il segnale di errore appena ricevuto!.
+				Il motivo per cui viene tolto solo il link del processo che ha inviato il segnale, risiede nel fatto che il processo ricevente potrà ripropagare a tutti i suoi processi linkati il segnale di errore appena ricevuto.
 			\item signal.type=$\mathsf{normal}$ $\wedge$ f=$\mathsf{true}$:
 				Il processo P evolve in P' in maniera simile al caso 1, con l'unica differenza nel campo h', che viene aggiunta la tupla \{'signal',signal.from,normal,signal.time\} al posto dell'altra, che segnala un terminazione normale del codice.
 			\item signal.type=$\mathsf{normal}$ $\wedge$ f=$\mathsf{false}$:
@@ -222,12 +222,11 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 		\begin{algorithmic}
 		\FORALL {histSignal $\in$ histSignals} 
 			\STATE Signal=recreateSignal(histSignal,Pid)
-			\STATE roll\_signal(StateAcc,Signal)
+			\STATE State=roll\_signal(State,Signal)
 		\ENDFOR
-		\RETURN back\_propag\_step(NewState,Pid)
+		\RETURN back\_propag\_step(State,Pid)
 		\end{algorithmic}
 		\end{algorithm}
-		Assumo che \textit{NewState} venga ritornato alla fine del \textit{forall} ed ad ogni passo del \textit{forall}, \textit{StateAcc} sia lo stato ritornato dalla precedente chiamata a \textit{roll\_signal}. All'inizio \textit{StateAcc=State}.
 		La funzione \textit{recreateSignal} si occupare di ricreare il \textit{record signal} con le informazioni che gli vengono passate. 
 		A livello molto generico ed informale, la \textit{roll\_signal} va a creare la condizione per cui il segnale possa essere ritirato.
 		Più in dettaglio, se il segnale può essere ritirato direttamente allora termina, altrimenti fai fare un passo indietro \textit{al processo che lo ha ricevuto} e rivaluta \textit{roll\_signal} sul segnale ricorsivamente, finchè non si arriva al caso base.
@@ -238,8 +237,9 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 		\IF {Signal $\in$ $\Psi$} 
 			\RETURN State
 		\ELSE
-			\STATE State'=back\_step(State,Signal.p')
-			\STATE roll\_signal(State',Signal)
+			\STATE DestPid=Signal.p'
+			\STATE State'=back\_step(State,DestPid)
+			\RETURN roll\_signal(State',Signal)
 		\ENDIF
 		\end{algorithmic}
 		\end{algorithm}
@@ -249,16 +249,37 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 			secondo la regola all'indietro della spawn\_link.
 	\end{itemize}
 \subsection{Un esempio di Cauder esteso}
-Il codice che mostro qui sotto implementa una comunicazione client-server.\\
-Un \textit{server} riceve delle richieste da 2 \textit{client}. Questi 2 \textit{client} inviano ognuno 2 valori presi da una lista predefinita di valori per ottenere in output dal \textit{server} una divisione.\\
+Il codice che mostro qui sotto implementa una comunicazione client-server e viene mostrato in figura \ref{example}.\\
+Un \textit{server} riceve delle richieste da 2 \textit{client}.\\
+Il server inoltre mantiene una memoria in cui mappa i worker con i relativi client.\\
+Questi 2 \textit{client} inviano ognuno 2 valori presi da una lista predefinita di valori per ottenere in output dal \textit{server} una divisione.\\
 Finchè non riesce a soddisfare una richiesta, il \textit{client} continua ad inviare richieste, scegliendo ogni volta degli input casuali dalla lista di valori.\\
 In questa lista sono presenti dei valori non numerici per simulare una richiesta malformata che il \textit{server} deve gestire.\\
 Ad ogni richiesta ricevuta il \textit{server} spawna un \textit{worker} che esegue effettivamente la divisione e che si occupa di inviarla al rispettivo \textit{client}.
-Nel caso il \textit{worker} non riuscisse a gestire la richiesta, il server si occuperà di riferire al client l'errore.
-\begin{figure}[H]
+Nel caso il \textit{worker} non riuscisse a gestire la richiesta, il server dovrebbe occuparsi di riferire al client l'errore, mentre nel caso riuscisse a gestirla e quindi terminare correttamente, il server provvede a rimuoverlo dalla memoria.
+La procedura di debugging si articolerebbe nei seguenti passi, utilizzando la modalità \textit{manual} e facendo riferimento a \ref{dbg}:
+\begin{enumerate}
+	\item Avviare il \textbf{server} (Proc. 2 in figura) e metterlo in ricezione eseguendo un passo con esso.
+	\item Avviare un \textbf{client} (Proc. 3 in figura) ed eseguire dei passi finchè non arriva alla \textit{send} di un messaggio verso il server.
+	\item Quando il \textit{msg} viene inserito nella \textit{GM} porre attenzione al \textit{payload}.
+	\item \underline{Schedulare} il \textit{msg} al \textbf{server}, tramite il \textit{time} di \textit{msg}.
+	\item A questo punto proseguire col server, ricevendo il \textit{msg} e avviare un \textbf{worker}.
+	\item Ora è il momento di far lavorare il \textbf{worker} eseguendolo fino alla fine. A questo punto ci sono due casistiche:
+		\begin{itemize}
+			\item Il \textbf{worker} riesce a fare la divisione e quindi invia al \textbf{client} il risultato ed esce. A questo punto è pronto per la \textit{propagazione dell'uscita} al server, che eseguo. Nella \textit{GS} compare il \textit{signal} di tipo $\mathsf{normal}$ che schedulo tramite il suo \textit{time} schiacciando il pulsante \textit{Signal} nella modalità \textit{Manual}. Ora, guardando sullo stato di Proc. 2, dovrebbe essere visualizzata in \textit{H} la ricezione del \textit{signal} col relativo messaggio in \textit{LM}, pronto per essere estratto ed elaborato, per poter rimuovere il \textbf{worker} della memoria del server.
+			In tal caso o avviare un'altro \textbf{client} oppure usare l'operatore \textit{roll} nella modalità \textit{Rollback} per fare l'undo della \textit{spawn} del \textbf{client} e ripetere il procedimento, tentando di andare in errore.
+			\item Il worker non riesce a fare la divisione. A questo punto essendo andato in errore è pronto per la \textit{propagazione dell'errore} al server, che eseguo. Schedulo il segnale di errore in maniera analoga al punto precedente. Ora, guardando sullo stato di Proc. 2, dovrebbe essere visualizzata in \textit{H} la ricezione del \textit{signal} col relativo messaggio in \textit{LM}, pronto per essere estratto ed elaborato, per poter avvisare il \textbf{client} dell'errore della richiesta.
+		\end{itemize}
+\end{enumerate}
+\begin{figure}[!ht]
 \lstinputlisting{./LavoroLuca/EstensioneCauder/EsempioDebug/clientServer.erl}
 \caption{client-server}
 \label{example}
 \end{figure}
-Il video può essere trovato al link: https://github.com/Taba92/Tesi al file esempio.mk.
+\begin{figure}[!ht]
+\centerline{\includegraphics[scale=0.4]{./LavoroLuca/EstensioneCauder/EsempioDebug/ScreenDebug}}
+\caption{client-server Cauder}
+\label{dbg}
+\end{figure}
+Il video può essere trovato al link \href{https://github.com/Taba92/Tesi}{https://github.com/Taba92/Tesi} con il nome del file \textit{luca.mkv}.
 \end{document}
