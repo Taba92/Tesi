@@ -4,7 +4,7 @@
 
 \section{INTRODUZIONE}
 Il debugging indica l'attività che consiste nell'individuazione e correzione da parte del programmatore di uno o più errori (bug) rilevati nel software.
-Essa è una delle attività più costose nell’ambito dello sviluppo software, sia in tempo che in termini economici, tale che, miglioramenti in questo campo, generano un notevole impatto sul piano pratico.
+Essa è una delle attività più costose nell’ambito dello sviluppo software, sia in tempo che in termini economici, tale che miglioramenti in questo campo generano un notevole impatto sul piano pratico.
 Un debugger è uno strumento software specifico utilizzato per eseguire l'attività di debugging, consentendo l'esecuzione del programma a piccoli passi fino a punti scelti dal programmatore (settando un breakpoint per esempio), mostrando nel contempo lo stato del programma: quali variabili sono in gioco, lo stack di esecuzione ecc..
 
 Secondo una ricerca recente \cite{devops} (2020) di Undo, un'azienda che si occupa di debugging reversibile, in collaborazione con un progetto MBA della Cambridge Judge Business School, emerge che 620 milioni di ore di sviluppo all'anno, in tutto il mondo, vengano impiegate per il debug di errori software, a un costo di circa 61 miliardi di dollari.
@@ -20,20 +20,20 @@ Erlang è un linguaggio di programmazione ad attori funzionale, concorrente e di
 Fu progettato per gestire applicazione real-time, 1)fault-tolerant, 2)distribuite e 3)non-stop.
 Queste feature, in un'applicazione scritta in Erlang, vengono raggiunte rispettivamente grazie a:
 \begin{enumerate}
-	\item{Link tra i processi, suddividendoli in processi worker e processi supervisor, in cui un supervisor linkato ad un worker, cattura e gestisce \textit{la fine dell'esecuzione del worker}, sia essa la terminazione normale del codice o un'uscita anomala}
-	\item{API per lo spawn di nodi e processi su nodi, su altre macchine in rete}
-	\item{Loading del codice a caldo}
+	\item Link tra i processi, suddividendoli in processi worker e processi supervisor, in cui un supervisor linkato ad un worker, cattura e gestisce \textit{la fine dell'esecuzione del worker}, sia essa la terminazione normale del codice o un'uscita anomala.
+	\item API per lo spawn di nodi e processi su nodi, su altre macchine in rete.
+	\item Loading del codice a caldo.
 \end{enumerate}
 L'unità di computazione base del linguaggio Erlang è il processo, come per Java o Python risulta essere 
 la classe (più precisamente un oggetto che istanzia una classe).
 Questi processi vengono schedulati da BEAM, come un normale sistema operativo, tramite uno scheduler di tipo \textit{preemptive} con politica basata sulle \textit{riduzioni}, ovvero ogni operazione fatta da un processo costa un \textit{certo ammontare di riduzioni}, e raggiunta la soglia limite, viene schedulato un altro processo\footnote{il costo di un operazione in riduzioni dipende da una stima che viene fatta da BEAM, e può variare da esecuzione ad esecuzione}.
-I vari processi attivi in un sistema run-time Erlang comunicano attraverso, e solamente così, il \textit{message-passing asincrono}, dato che essi sono totalmente isolati dagli altri processi in esecuzione(ecco perchè si chiamano processi e non thread).
+I vari processi attivi in un sistema run-time Erlang comunicano attraverso, e solamente così, il \textit{message-passing asincrono}, dato che essi sono totalmente isolati dagli altri processi in esecuzione (ecco perchè si chiamano processi e non thread).
 Ogni processo possiede una local mailbox che è implementata da una coda in cui i messaggi inviati da altri processi vengono immagazzinati, in attesa di essere elaborati.
 \textbf{\textit{Il motivo per cui è stato scelto Erlang come linguaggio di riferimento risiede nel fatto che la parte sequenziale e la parte concorrente del linguaggio sono ben distinguibili fra di loro}}.
 
 Attualmente, il debug reversibile per linguaggi sequenziali è ben compreso e ha trovato applicazioni in ambito industriale.
 Tuttavia, oggigiorno la maggior parte del software, soprattutto in ambito web, si sta spostando verso il paradigma concorrente, dato l'avvento di cpu multi-core in primis. Sfortunatamente, la nozione di reversibilità in un contesto concorrente è intrinsecamente diversa dalla nozione di reversibilità in un contesto sequenziale.
-In un contesto sequenziale, l'ultimo stato di un programma è individuabile nello \textit{stato del programma alla penultima riga di codice}, mentre in ambito concorrente, non è mai ben definita l'ultima riga di codice, come si nota nell'esempio \ref{seqconc}, dato che l'esecuzione di un codice concorrente, ripetuto più volte con gli stessi input, può variare di volta in volta, quando nell'ambito sequenziale è sempre univoco il flusso di codice per gli stessi input.
+In un contesto sequenziale, l'ultimo stato di un programma è individuabile nello \textit{stato del programma alla penultima riga di codice}, mentre in ambito concorrente, non è mai ben definita l'ultima riga di codice, come si nota nell'esempio \ref{seqconc}, dato che l'esecuzione di un codice concorrente, ripetuto più volte con gli stessi input, può variare di volta in volta, quando nell'ambito sequenziale è sempre univocamente definito il flusso di codice per gli stessi input.
 Nello specifico di Erlang, l'esecuzione temporale del codice può sovrapporsi tra i vari processi, dato che  la macchina virtuale BEAM\cite{smp}, \textit{per ogni core della cpu}, crea un \textit{thread scheduler}, che gestisce una coda di processi Erlang, ottendo la \textit{concorrenza reale} della computazione.
 Sono possibili due soluzioni:
 \begin{itemize}
@@ -42,7 +42,7 @@ Sono possibili due soluzioni:
 \end{itemize}
 \subfile{./Introduzione/EsempioSeqConc/esempio}
 Si consideri inoltre che, con l'approccio di programmazione concorrente, si aggiungono, nel programma, tipi di bug intrinsechi ad esso, quali \textit{deadlock}, \textit{race conditions} o \textit{starvation}.
-Seppur i linguaggi di programmazione basati sul paradigma concorrente evitino questi tipi di bug a livello di progettazione, \textbf{tramite politiche ben definite e scelte durante la progettazione del linguaggio}\footnote{Nello specifico di Erlang, se si verifica un deadlock, BEAM uccide i processi coinvolti in esso, per poi farli ripartire uno alla volta, ed effettuando dei controlli su di essi.}, si può comunque incorrere in altri tipi di bug, relativi alla concorrenza, durante lo sviluppo software con questi linguaggi, uno in particolare relativo ad Erlang, quale la \textit{violazione dell'ordine di invio dei messaggi}.\footnote{Ipotizziamo di avere due processi X e Y rispettivamente sender e receiver.X invia z al tempo T=1 ed al tempo T=2 invia q.Non è detto che arrivi prima z di q, nonostante fosse stato inviato prima.}
+Seppur i linguaggi di programmazione basati sul paradigma concorrente evitino questi tipi di bug a livello di progettazione, \textbf{tramite politiche ben definite e scelte durante la progettazione del linguaggio}\footnote{Nello specifico di Erlang, se si verifica un deadlock, BEAM uccide i processi coinvolti in esso, per poi farli ripartire uno alla volta, ed effettuando dei controlli su di essi.}, si può comunque incorrere in altri tipi di bug, relativi alla concorrenza, durante lo sviluppo software con questi linguaggi, uno in particolare relativo ad Erlang, quale la \textit{violazione dell'ordine di invio dei messaggi}.\footnote{Ipotizziamo di avere due processi X e Y rispettivamente sender e receiver. X invia z al tempo T=1 ed al tempo T=2 invia q. Non è detto che arrivi prima z di q, nonostante fosse stato inviato prima.}
 \textbf{Nello specifico per Erlang, la sequenzializzazione fallisce in principio in cpu multi-core, ma in generale essa risulta essere totalmente inefficiente per il paradigma concorrente in quanto, la sequenzializzazione, oltre ad avere un grosso overhead, tralascia le \textit{informazioni relative alla causalità}. Quest'ultime risultano essere fondamentali e centrali in relazione ai bug sopra citati, e in generale ai bug nella concorrenza, in quanto questi bug posso apparire in una esecuzione ma non apparire in un esecuzione successiva dello stesso codice, dipendendo dalla velocità di esecuzione dei singoli processi e da come questi interagiscano tra di loro}.
 In figura \ref{bug}, un sender (\textit{sender}) invia due numeri (2,0) a due diversi intermediari (\textit{inter}), che a loro volta invieranno i loro numeri ad un worker (\textit{worker}), che effettuerà una divisione. In base alla sequenza di arrivo di questi due numeri, il worker può restituire 0 o andare in errore, e questa sequenza di arrivo non è mai univoca, anzi varia in base \textit{allo scheduling}.
 \subfile{./Introduzione/EsempioBug/esempio}
@@ -71,5 +71,5 @@ Cauder permette di eseguire un programma, dopo averlo caricato e compilato dal m
 Questa tesi verte su \textit{un'estensione} di Cauder, tramite l'implementazione dei \textit{link e la gestione della terminazione del codice}, per la gestione degli errori.\\
 Ciò che introdurrò in primis sarà la nozione di reversibilità in generale, una nozione di reversibilità che si adatta alla nozione di concorrenza e infine l'applicazione di essa al debugging.\\
 Successivamente illustrerò il linguaggio di Cauder, le strutture dati che manipola e le regole informali che implementa e come esse fanno evolvere le strutture dati gestite da Cauder.\\
-Infine passerò ad illustrare l’implementazione dell’estensione del linguaggio supportato, ovvero come esso viene esteso, le strutture dati estese di  Cauder e come evolvono, secondo le nuove regole informali derivanti dalla gestione degli errori e i link a run time.
+Infine passerò ad illustrare l’implementazione dell’estensione del linguaggio supportato, ovvero come esso viene esteso, le strutture dati estese di  Cauder e come evolvono, secondo le nuove regole semantiche derivanti dalla gestione degli errori e i link a run time.
 \end{document}

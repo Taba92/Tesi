@@ -5,7 +5,7 @@
 La sintassi del linguaggio mostrata in 2.2 viene estesa tramite queste 4 espressioni e mostrata in figura \ref{newrules}:
 \begin{itemize}
 	\item $\displaystyle \mathsf{process\_flag}(\mathsf{trap\_exit},Boolean)\xrightarrow{return}OldBool$: Se \textit{Boolean}=$\mathsf{true}$, i segnali di uscita che arrivano al processo chiamante vengono convertiti in messaggi \textit{\{'EXIT', From, Reason\}}, che possono essere ricevuti come messaggi ordinari. 
-	Se \textit{Boolean}=$\mathsf{false}$, il processo chiamante \textit{termina} se riceve un segnale di uscita diverso da \textit{Reason}=$\mathsf{normal}$, \textbf{che a sua volta viene ripropagato a tutti i processi collegati con esso e cosi vià}.
+	Se \textit{Boolean}=$\mathsf{false}$, il processo chiamante \textit{termina} se riceve un segnale di uscita diverso da \textit{Reason}=$\mathsf{normal}$, \textbf{che a sua volta viene ripropagato a tutti i processi collegati con esso e cosi via}.
 	La chiamata a $\mathsf{process\_flag}$ ritorna il valore del vecchio flag(\textit{OldBool}).
 	\item $\displaystyle \mathsf{spawn\_link}(expr, [expr_{1},...,expr_{n}])\xrightarrow{return}SpawnedPid$: funziona esattamente per la $\mathsf{spawn}$, con l'aggiunta che il processo spawnato si linka \textit{atomicamente} con \textit{SpawnedPid}.
 	\item $\displaystyle \mathsf{exit}(Reason)\xrightarrow{no\_return}$: il processo chiamante termina con motivo di uscita Reason.
@@ -87,7 +87,7 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 	\end{figure}
 	Invece, nella figura sottostante, vediamo la ricezione della send della figura precedente. Uso una freccia \textit{obliqua}, in modo da evidenziare l'asincronia nella comunicazione di Erlang.
 	La label sopra la freccia riporta l'informazione scambiata.\\
-	L'informazione è composta dal \textit{payload}, quindi il vero contenuto informativo e dal \textit{time}, che risulta \textbf{sempre} visibile, tra le parentesi tonde a fine label. Questo esempio riprende la send della figura precedente. Questo tipo di visualizzazione verrà usato anche per la propagazione e ricezione di segnali.
+	L'informazione è composta dal \textit{payload}, quindi il vero contenuto informativo e dal \textit{time}, che risulta \textbf{sempre} visibile, tra le parentesi tonde a fine label. Questo tipo di visualizzazione verrà usato anche per la propagazione e ricezione di segnali.
 	\begin{figure}[H]
 		\includegraphics[scale=0.5]{./LavoroLuca/EstensioneCauder/Imgs/GraphicViewerSendReceive}
 		\caption{Esempio Graphic Viewer Send/Receive}
@@ -129,8 +129,8 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 		Può essere vista come una \textit{send uno-a-tanti}.\\
 		Per ogni link di P viene generato un segnale ed inviato al processo linkato, prima che P termini del tutto.\\
 		Più formalmente:\\
-		Sia histSignals=$\displaystyle \bigcup_{link \in l}\{link,type,reason,time\}$.\\
-		Sia h'='=$\displaystyle[\{\mathsf{propag},\theta,e,histSignals\} \mid h]$.\\
+		Sia histSignals=$\displaystyle \bigcup_{link \in l}\{link,type,reason,time\}$, con \textit{time} che incrementa ad ogni passo.\\
+		Sia h'=$\displaystyle[\{\mathsf{propag},\theta,e,histSignals\} \mid h]$.\\
 		Allora P evolve in P'=$\displaystyle \langle p,\theta,e',h',lm,l'=[],f \rangle$.\\
 		Sia signals=$\displaystyle \bigcup_{hist \in histSignals}\{hist.link,p,hist.type,hist.reason,hist.time\}$.\\
 		Allora il sistema S evolve in S'=$\displaystyle \Gamma;\Psi \cup signals;\Pi \setminus \{P\} \cup \{P'\} $.\\
@@ -162,32 +162,32 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 			\item signal.type=$\mathsf{normal}$ $\wedge$ f=$\mathsf{false}$:\\
 				Il processo P evolve in P' in maniera simile al caso 3, con l'unica differenza che non viene creato il messaggio, ma viene solo rotto il link col processo che ha propagato il segnale.
 			\end{enumerate}
-		In relazione alla figura \ref{fig7}, l'et\_context\_viewer con \textbf{label}= signal) mostra la ricezione del segnale con time=1 da parte del processo 3.\\
+		In relazione alla figura \ref{fig7}, l'et\_context\_viewer con \textbf{label}= signal mostra la ricezione del segnale con time=1 da parte del processo 3.\\
 		Il processo 1 avendo il \textit{process\_flag} a \textit{true}, dopo la ricezione del segnale con time=2 (\textbf{il punto di partenza della freccia spezzata}, avrebbe l'et\_context\_viewer simile a quello con label=signal), converte in messaggio il segnale ricevuto, e ne effettua la \textit{receive}, com mostrato nel et\_context\_viewer con \textbf{label}= receive.
 	\end{itemize}
 \textbf{SEMANTICA ALL'INDIETRO}:
 	\begin{itemize}
 		\item $\mathsf{Process\_flag}$:\\
-		Sia h=$\displaystyle [\{\mathsf{process\_flag},\theta_{old},e_{old},OldBool\} \mid h']$.\\
-		P evolve in P'= $\displaystyle \langle p,\theta_{old},e_{old},h',lm,l,f'=OldBool \rangle$.\\
+		Sia h=$\displaystyle [\{\mathsf{process\_flag},\theta_{old},e_{old},OldBool\} \mid h_{old}]$.\\
+		P evolve in P'= $\displaystyle \langle p,\theta_{old},e_{old},h_{old},lm,l,f'=OldBool \rangle$.\\
 		Il sistema evolve come nella semantica in avanti, togliendo P ed inserendo P'.
 		\item $\mathsf{Spawn\_link}$:
 		Per poter effettuare un passo all'indietro della spawn\_link, si ha la stessa precondizione relativa alla spawn, ovvero il processo spawnato deve essere avere \textit{history} e \textit{local mailbox} vuote.\\
-		Sia h=$\displaystyle [\{\mathsf{spawn\_link},\theta_{old},e_{old},p_{spawn}\} \mid h']$.\\
-		Sia P' il processo con pid $\mathsf{p_{spawn}}$.\\
-		P evolve in P''=$\displaystyle \langle p,\theta_{old},e_{old},h',l'=l \setminus \{p_{spawn}\},f \rangle$.\\
+		Sia h=$\displaystyle [\{\mathsf{spawn\_link},\theta_{old},e_{old},p'\} \mid h_{old}]$.\\
+		Sia P' il processo con pid \textit{p'}.\\
+		P evolve in P''=$\displaystyle \langle p,\theta_{old},e_{old},h_{old},l'=l \setminus \{p'\},f \rangle$.\\
 		Il sistema evolve in S'=$\displaystyle \Gamma;\Psi;\Pi\setminus\{P,P'\}\cup\{P''\}$.
-		\item $\mathsf{Error~e~exit}$: Sia h=$\displaystyle [\{call,\theta_{old},e_{old},Reason\} \mid h']$.\\
-		Banalmente, il processo P evolve in P'=$\displaystyle \langle p,\theta_{old},e_{old},h',lm,l,f \rangle$ ed S evolve allo stesso modo della semantica in avanti.
+		\item $\mathsf{Error~e~exit}$: Sia h=$\displaystyle [\{call,\theta_{old},e_{old},Reason\} \mid h_{old}]$.\\
+		Banalmente, il processo P evolve in P'=$\displaystyle \langle p,\theta_{old},e_{old},h_{old},lm,l,f \rangle$ ed S evolve allo stesso modo della semantica in avanti.
 		\item $\mathsf{Propagazione~dei~segnali}$: Per effettuare l'undo di una propagazione dei segnali, bisogna che tutti i segnali inviato dal processo morente siano presenti in $\Psi$.
 		Se non si rispettasse questa condizione, quindi si potesse fare l'undo in ogni momento della propagazione, si rischierebbe di violare la consistenza causale.\\
 		Ipotizziamo di avere $\Psi$=[\{1,2,error,badarg,1\},\{3,2,error,badarg,2\}], a seguito di una propagazione da parte del processo 2. Ora se schedulassi in avanti il segnale di tempo=1 avrei $\Psi$=[\{3,2,error,badarg,2\}], ma cosa ben più importante, essa ha prodotto degli effetti sul processo che lo riceve(più avanti si vedrà la regola della consegna dei segnali). Se ora annullassi la propagazione senza aver annullato prima la schedulazione del segnale, otterrei che il processo 1 ha subito degli effetti da parte della schedulazione di un segnale che non è mai esistito.
 		Posta che vi sia questa condizione, l'undo della propagazione ritira tutti i segnali emessi dal processo morente, ricreando i link rotti.
 		Più formalmente:\\
-		Sia h=$\displaystyle [\{\mathsf{propag},\theta_{old},e_{old},histSignals\} \mid h']$.\\
+		Sia h=$\displaystyle [\{\mathsf{propag},\theta_{old},e_{old},histSignals\} \mid h_{old}]$.\\
 		Sia oldLinks=$\displaystyle  \bigcup_{hS \in histSignals}hS.link $.\\ 
 		Sia signals=$\displaystyle \bigcup_{hS \in histSignals}\{hS.link,p,hS.type,hS.reason,hS.time\}$.\\
-		Allora P'=$\displaystyle \langle p,\theta_{old},e_{old},h',lm,l=oldLinks,f \rangle$.\\
+		Allora P'=$\displaystyle \langle p,\theta_{old},e_{old},h_{old},lm,l=oldLinks,f \rangle$.\\
 		Il sistema S evolve in S'=$\displaystyle \Gamma;\Psi \setminus signals;\Pi \setminus \{P\} \cup \{P'\} $.
 		\item \underline{Ricezione segnali}: Anche nell'undo della schedulazione di un segnale si presentato 4 casistiche, in funzione delle informazioni in \textit{h} ed eventualmente di \textit{f} in quell'istante.
 		Ogni casistica può avere una sua precondizione, che definisco in quella specifica casistica.
@@ -199,7 +199,7 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 		\end{enumerate}
 		Qui di seguito espongo la regola dell'undo di un segnale,secondo le varie casistiche, illustrando solo come evolve P in P':
 		\begin{enumerate}
-		\item h=$\displaystyle [\{\mathsf{signal},from,\mathsf{error},reason,time\} \mid h']$:\\
+		\item h=$\displaystyle [\{\mathsf{signal},from,\mathsf{error},reason,time\} \mid h_{old}]$:\\
 			  Indica un ricezione di un  segnale di errore $\wedge$ \textit{f}=$\mathsf{true}$(vedi h del caso 1 nella semantica in avanti).
 			  Come precondizione, questa casistica necessita che il relativo messaggio derivato dal segnale, \textit{sia in cima ad lm}, ovvero lm=$\displaystyle [\{\{\mathsf{EXIT},s.from,s.reason\},s.time\} \mid lm']$.\\
 			  Se non ci fosse questa precondizione, si rischierebbe di violare il Loop Lemma. Ipotizziamo di essere in questa situazione:\\
@@ -208,19 +208,19 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 			  Da uno stato S, ho fatto l'undo di un'azione per poi rifarla e mi son ritrovato in uno stato S'$\neq$S, infrangendo il Loop Lemma.
 			  Detto questo:\\
 			  Sia lm=$\displaystyle [\{\{\mathsf{EXIT},s.from,s.reason\},s.time\} \mid lm']$.\\
-			  P evolve in P'=$\displaystyle \langle p,\theta,e,h',lm',l \cup \{from\},f \rangle$.\\
+			  P evolve in P'=$\displaystyle \langle p,\theta,e,h_{old},lm',l \cup \{from\},f \rangle$.\\
 			  Da notare che $\theta$ ed \textit{e} rimangono inalterati.
-		\item h=$\displaystyle [\{\mathsf{signal},from,\mathsf{error},\theta_{old},e_{old},time\} \mid h']$:\\
+		\item h=$\displaystyle [\{\mathsf{signal},from,\mathsf{error},\theta_{old},e_{old},time\} \mid h_{old}]$:\\
 			  Indica una ricezione di un segnale di errore $\wedge$ \textit{f}=$\mathsf{false}$(vedi h del caso 2 nella semantica in avanti).
 			  Per la ricostruzione del segnale \textit{signal}, \textit{reason} la posso tranquillamente ricavare dal secondo elemento di \textit{e}.
-			  Detto ciò, evolvo P in P'=$\displaystyle \langle p,\theta_{old},e_{old},lm,l \cup \{from\},f \rangle$.
-		\item h=$\displaystyle [\{\mathsf{signal},signal.from,\mathsf{normal},signal.time\} \mid h']$:\\
+			  Detto ciò, evolvo P in P'=$\displaystyle \langle p,\theta_{old},e_{old},h_{old},lm,l \cup \{from\},f \rangle$.
+		\item h=$\displaystyle [\{\mathsf{signal},signal.from,\mathsf{normal},signal.time\} \mid h_{old}]$:\\
 			  Indica una ricezione di terminazione normale.
 			  In questo caso il tipo di comportamento della regola, lo posso discriminare in base a \textit{f} di P in quell'istante.\\
 			  \textit{Sia f}=$\mathsf{true}$:\\
 			  Allora diventa analogo al caso 1 della semantica all'indietro, ovviamente ricostruendo un \textit{signal} di type=$\mathsf{normal}$.\\
 			  \textit{Sia f}=$\mathsf{false}$:\\
-			  Banalmente P evolve in P'=$\displaystyle \langle p,\theta,e,h',lm,l \cup \{from\},f \rangle$.
+			  Banalmente P evolve in P'=$\displaystyle \langle p,\theta,e,h_{old},lm,l \cup \{from\},f \rangle$.
 	\end{enumerate}
 	\end{itemize}
 \textbf{ROLLBACK}:\\
@@ -228,11 +228,11 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 	A dire il vero ne esiste una terza (roll\_signal) ma, come si vedrà a breve, essa viene inglobata nella \textit{roll della propagazione dei segnali}.
 	\begin{itemize}
 		\item \underline{Propagazione segnali}:\\
-		Sia h=$\displaystyle [\{\mathsf{propag},\theta,e,histSignals\} \mid h']$.
+		Sia h=$\displaystyle [\{\mathsf{propag},\theta,e,histSignals\} \mid h_{old}]$.
 		Bisogna creare la condizione per cui si possa ripropagare all'indietro.
 		Algoritmicamente, la roll di un propagazione si sviluppa in questo modo:\\
 		\begin{algorithm}[H]
-		\caption{roll\_propag(State,Pid)}
+		\caption{roll\_propag(State,histSignals,Pid)}
 		\begin{algorithmic}
 		\FORALL {histSignal $\in$ histSignals} 
 			\STATE Signal=recreateSignal(histSignal,Pid)

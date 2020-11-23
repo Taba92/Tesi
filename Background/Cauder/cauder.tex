@@ -50,13 +50,14 @@ Nel punto relativo alla semantica ometto la spiegazione della receive, in quanto
 \textbf{2) Le strutture dati di Cauder:}\\
 In questa sezione vado a definire le strutture dati gestite da Cauder.
 Nella figura \ref{fig3} sottostante mostro come lo stato di Cauder viene rappresentato graficamente.
-Ad ogni struttura dati che introduco, associerò come essa viene rappresentata internamente in Cauder e come venga rappresentata graficamente, facendo riferimento alla figura sottostante.
+Ad ogni struttura dati che introduco, associerò come essa viene rappresentata internamente in Cauder e come venga rappresentata graficamente, facendo riferimento alla figura sopracitata.
 \begin{figure}[!ht]
 	\centerline{\includegraphics[scale=0.5]{./Background/Cauder/Imgs/CauderStato}}
 	\caption{Lo stato di Cauder.}
 	\label{fig3}
 \end{figure}
 Un \textit{sistema} in esecuzione viene denotato tramite $\Gamma$;$\Pi$, dove $\Gamma$ denota la mailbox global ovvero \underline{l'insieme} dei \textit{messaggi inviati} in attesa di essere consegnati, mentre $\Pi$ denota \underline{l'insieme} dei \textit{processi} nel sistema.
+In Cauder le varie strutture verranno implementate tramite i \textit{record} \cite{erlangRecord}.
 Il \textit{sistema} viene implementato in Cauder tramite un \textit{record sys} contenente i seguenti campi:
 	\begin{itemize}
 		\item \textit{\textbf{sched}}: denota la tipologia di scheduling delle azioni da utilizzare. Cauder utilizza due politiche di scheduling:
@@ -133,21 +134,22 @@ Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spa
 		Ipotizziamo di avere 3 processi cosi definiti, in cui il processo 1 spawna il secondo e il secondo spawna il terzo.
 		Abbiamo una situazione del genere:
 		\begin{enumerate}
-			\item $\displaystyle \langle p',\theta',e',h',lm' \rangle$ con h'=$\displaystyle [\{\mathsf{spawn},\theta,e,p''\} \mid h]$.
-			\item  $\displaystyle \langle p'',\theta'',e'',h'',lm''\rangle$ con h''=$\displaystyle[\{\mathsf{spawn},\theta,e,p'''\} \mid h]$.
+			\item $\displaystyle \langle p',\theta',e',h',lm' \rangle$ con h'=$\displaystyle [\{\mathsf{spawn},\theta,e,p''\} \mid h_{1}]$.
+			\item  $\displaystyle \langle p'',\theta'',e'',h'',lm''\rangle$ con h''=$\displaystyle[\{\mathsf{spawn},\theta,e,p'''\} \mid h_{2}]$.
 			\item il terzo processo non è rilevante.
 		\end{enumerate}
 		Ora facciamo l'undo della $\mathsf{spawn}$ del secondo processo per poi rifarla.
 		Ci ritroviamo nella seguente situazione:
 			\begin{enumerate}
-			\item $\displaystyle \langle p',\theta',e',h',lm' \rangle$ con h'=$\displaystyle [\{\mathsf{spawn},\theta,e,p''\} \mid h]$.
+			\item $\displaystyle \langle p',\theta',e',h',lm' \rangle$ con h'=$\displaystyle [\{\mathsf{spawn},\theta,e,p''\} \mid h_{1}]$.
 			\item $\displaystyle \langle p'',\theta'',e'',h'',lm'' \rangle$ con h''=[] ed lm''=[].
 			\item il terzo processo non è rilevante.
 		\end{enumerate}
 		Abbiamo fatto l'undo di un'azione per poi rifarla e siamo finiti su uno stato diverso, violando il Loop Lemma.\\
 		Posta vi sia questa condizione, l'undo di una spawn si formalizza così:
-		Sia h=$\displaystyle [\{\mathsf{spawn},\theta,e,p'\} \mid h']$.\\
-		Sia P''=$\displaystyle \langle p,\theta'' = \theta,e''=e,h',lm \rangle$.\\
+		Sia h=$\displaystyle [\{\mathsf{spawn},\theta,e,p'\} \mid h_{old}]$.\\
+		Sia P' il processo con pid \textit{p'}.\\
+		Sia P''=$\displaystyle \langle p,\theta'' = \theta,e''=e,h''=h_{old},lm \rangle$.\\
 		Allora il sistema evolve in S'=$\displaystyle \Gamma;\Pi\setminus\{P',P\}\cup\{P''\}$.
 		\item \textit{\textbf{rule send}}: Informalmente questa regola elimina un \textit{msg} da $\Gamma$. Come precondizione per effettuare l'undo di una $\mathsf{send}$, bisogna che il messaggio \textit{msg} sia presente in $\Gamma$. Se così non fosse si rischierebbe di violare il Loop Lemma.
 		Ipotizziamo questo scenario:
@@ -164,8 +166,8 @@ Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spa
 		In sostanza mi troverei con un messaggio duplicato, che chiaramente viola il Loop Lemma.\\
 		Posto vi sia questa condizione, l'undo di una send si formalizza in questo modo:\\
 		Sia \textit{msg=(p',val,time)}.\\
-		Sia h'=$\displaystyle [\{\mathsf{send},\theta,e,msg\} \mid h]$.\\
-		Sia P'=$\displaystyle \langle p,\theta'=\theta,e'=e,h,lm \rangle$.\\
+		Sia h=$\displaystyle [\{\mathsf{send},\theta,e,msg\} \mid h_{old}]$.\\
+		Sia P'=$\displaystyle \langle p,\theta'=\theta,e'=e,h'=h_{old},lm \rangle$.\\
 		Allora il sistema evolve in S'=$\displaystyle \Gamma\setminus\{msg\};\Pi\setminus\{P\}\cup\{P'\}$.
 		\item \textit{\textbf{rule sched}}: Informalmente questa regola elimina un \textit{msg} dalla local mailbox del processo destinatario, per reinserirla in $\Gamma$.
 		Come precondizione per effettuare l'undo di una sched, bisogna che il \textit{msg} sia in \underline{testa} alla local mailbox del processo ricevente. Se così non fosse si rischierebbe di violare il Loop Lemma.
@@ -185,7 +187,7 @@ Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spa
 	Indico invece con \textit{back\_rule\_xxx} l'undo della \textit{rule\_xxx}.
 	\begin{itemize}
 		\item \textit{\textbf{spawn}}: A livello informale la \textit{roll spawn} va a svuotare la \textit{history} e la \textit{local mailbox} del processo spawnato (annullando tutte le sue conseguenze ricorsivamente), per poi infine fare l'undo della spawn di esso. Algoritmicamente:\\
-		Sia $\displaystyle h=[\{\mathsf{spawn},\theta,e,p'\} \mid h']$.\\
+		Sia $\displaystyle h=[\{\mathsf{spawn},\theta,e,p'\} \mid h_{old}]$.\\
 		Sia P' il processo con pid \textit{p'}.
 		\begin{algorithm}[H]
 		\caption{roll\_spawn(State,p,p')}
@@ -200,21 +202,21 @@ Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spa
 		\end{algorithm}
 		\item \textit{\textbf{send}}: 
 		A livello informale la \textit{roll send} va a riportare un \textit{msg} all'interno di $\Gamma$, per poi effettuare l'undo della send. Diversamente dalla \textit{roll spawn}, la \textit{roll send} deve anche valutare le conseguenze derivate dalla schedulazione del messaggio oltre che le conseguenze del processo destinatario. Algoritmicamente:\\
-		Sia \textit{msg=(p',val,time)}.\\
 		Sia h=$\displaystyle [\{\mathsf{send},\theta,e,msg\} \mid h_{old}]$.\\
-		Sia \textit{lm'} la localmail box di P'.
+		Sia \textit{msg=(p',val,time)}.\\
+		Sia \textit{lm'} la localmail box di P', il processo con pid \textit{p'}.
 		\begin{algorithm}[H]
-		\caption{roll\_send(State,p,p',time)}
+		\caption{roll\_send(State,p,p',msg)}
 		\begin{algorithmic}
 		\IF { msg $\in$ $\Gamma$} 
 			\RETURN back\_step(State,p)
 		\ELSE
 			\IF { lm'==[msg $\mid$ $lm_{rest}$]} 
 				\STATE State'=back\_rule\_sched(State,msg)
-				\RETURN roll\_send(State',p,p',time)
+				\RETURN roll\_send(State',p,p',msg)
 			\ELSE
 				\STATE State'=back\_step(State,p')
-				\RETURN roll\_send(State',p,p',time)
+				\RETURN roll\_send(State',p,p',msg)
 			\ENDIF
 		\ENDIF
 		\end{algorithmic}

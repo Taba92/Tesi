@@ -12,7 +12,7 @@ Cauder la gestirebbe come un errore mentre invece è una terminazione normale de
 Una possibile soluzione potrebbe essere quella di aggiungere al \textit{record proc} un campo \textit{is\_alive} che è $\mathsf{true}$ se il processo è attivo oppure è $\displaystyle \{\mathsf{false},\{Type,Reason\}\}$ nel caso il processo fosse terminato. 
 Per quanto riguarda i \underline{link} esistono altre 2 funzioni utilizzabili:
 \begin{itemize}
-	\item $\displaystyle \mathsf{link}(Pid)\xrightarrow{return}\mathsf{true}$: Crea un collegamento tra il processo chiamante e il process \textit{Pid}. Se il collegamento esiste già o un processo tenta di creare un collegamento a se stesso, non viene eseguita alcuna operazione. Restituisce $\mathsf{true}$se il collegamento viene impostato.
+	\item $\displaystyle \mathsf{link}(Pid)\xrightarrow{return}\mathsf{true}$: Crea un collegamento tra il processo chiamante e il process \textit{Pid}. Se il collegamento esiste già o un processo tenta di creare un collegamento a se stesso, non viene eseguita alcuna operazione. Restituisce $\mathsf{true}$ se il collegamento viene impostato.
 	Se \textit{Pid} non esiste, viene generato un errore $\mathsf{noproc}$.
 	\item $\displaystyle \mathsf{unlink}(Pid)\xrightarrow{return}\mathsf{true}$: Rimuove il collegamento, se presente, tra il processo chiamante e il processo \textit{Pid}. Restituisce $\mathsf{true}$ e non ha esito negativo, anche se non è presente alcun collegamento a \textit{Pid} o se \textit{Pid} non esiste.
 \end{itemize}
