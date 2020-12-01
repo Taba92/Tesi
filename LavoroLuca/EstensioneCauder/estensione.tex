@@ -7,7 +7,7 @@ La sintassi del linguaggio mostrata in 2.2 viene estesa tramite queste 4 espress
 	\item $\displaystyle \mathsf{process\_flag}(\mathsf{trap\_exit},Boolean)\xrightarrow{return}OldBool$: Se \textit{Boolean}=$\mathsf{true}$, i segnali di uscita che arrivano al processo chiamante vengono convertiti in messaggi \textit{\{'EXIT', From, Reason\}}, che possono essere ricevuti come messaggi ordinari. 
 	Se \textit{Boolean}=$\mathsf{false}$, il processo chiamante \textit{termina} se riceve un segnale di uscita diverso da \textit{Reason}=$\mathsf{normal}$, \textbf{che a sua volta viene ripropagato a tutti i processi collegati con esso e cosi via}.
 	La chiamata a $\mathsf{process\_flag}$ ritorna il valore del vecchio flag(\textit{OldBool}).
-	\item $\displaystyle \mathsf{spawn\_link}(expr, [expr_{1},...,expr_{n}])\xrightarrow{return}SpawnedPid$: funziona esattamente per la $\mathsf{spawn}$, con l'aggiunta che il processo spawnato si linka \textit{atomicamente} con \textit{SpawnedPid}.
+	\item $\displaystyle \mathsf{spawn\_link}(expr, [expr_{1},...,expr_{n}])\xrightarrow{return}SpawnedPid$: funziona esattamente per la $\mathsf{spawn}$, con l'aggiunta che il processo chiamante si linka \textit{atomicamente} con \textit{SpawnedPid}.
 	\item $\displaystyle \mathsf{exit}(Reason)\xrightarrow{no\_return}$: il processo chiamante termina con motivo di uscita Reason.
 	Se \textit{Reason}=$\mathsf{normal}$, viene intesa come \textit{normale} terminazione del codice, altrimenti segnala una terminazione \textit{anomala} con motivo \textit{Reason}.
 	\item $\displaystyle \mathsf{error}(Reason)\xrightarrow{no\_return}$: il processo chiamante termina in modo \textit{anomalo} la sua esecuzione con motivo \textit{Reason}.
@@ -111,7 +111,7 @@ Ora che è stata introdotta la nuova sintassi, spiegando quali funzioni vengono 
 		Nel graphic viewer, in relazione alla figura \ref{fig7}, $\mathsf{process\_flag}$ viene mostrata tramite la label \textit{p\_flag=Bool} con Bool= T (true) or F (false).
 		\item $\mathsf{Spawn\_link}$: 
 		La funzione $\mathsf{spawn\_link}$ è molto simile alla funzione $\mathsf{spawn}$, con la differenza che opera anche sui link tra processi, per cui nella descrizione della semantica di essa, tratterò solo la parte relativa ai link.\\
-		La chiamata a $\mathsf{spawn\_link}$, oltre a creare un nuovo processo P' vuoto, setta i relativi link nei due processi coinvolti. Più formalmente:\\
+		La chiamata a $\mathsf{spawn\_link}$, oltre a creare un nuovo processo P' con \textit{lm} e \textit{h} vuote, setta i relativi link nei due processi coinvolti. Più formalmente:\\
 		Sia $\displaystyle h''=[\{\mathsf{spawn\_link},\theta,e,p'\} \mid h]$.\\
 		Sia P'=$\displaystyle \langle p',\theta'= \emptyset,e',h'=[],lm'=[],l'=\{p\},f'=false \rangle$ il processo spawnato.\\
 		Il processo P evolve in P''=$\displaystyle \langle p,\theta,e'',h'',lm,l''=l \cup\{p'\},f \rangle$.\\

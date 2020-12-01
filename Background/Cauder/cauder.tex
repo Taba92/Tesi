@@ -96,7 +96,7 @@ Formalmente \textit{proc} viene denotato tramite \textit{$\langle$ p,$\theta$,e,
 	Il \textit{record proc} possiede campi aggiuntivi ma che non menziono dato la non rilevanza per questa tesi.\\
 \textbf{2) La semantica di Cauder:}\\
 In questo punto introduco la semantica di Cauder. Più precisamente mostro solo un sottoinsieme di queste regole, in quanto le altre non sono rilevanti per questa tesi.
-Evidenzio \textbf{4} regole, che vado ad illustrare, lavorando su un processo generico P \textit{che esegue la regola descritta}, ovvero $\displaystyle \langle p,\theta,e,h,lm\}$ e su un sistema generico S, ovvero $\Gamma$;$\Pi$.\\
+Evidenzio \textbf{3} regole, che vado ad illustrare, lavorando su un processo generico P \textit{che esegue la regola descritta}, ovvero $\displaystyle \langle p,\theta,e,h,lm\}$ e su un sistema generico S, ovvero $\Gamma$;$\Pi$.\\
 Essendo un linguaggio funzionale ad ogni passo creo delle nuove strutture dati sulla base delle vecchie, costruendo nuovi stati a partire dai precedenti.\\
 Come già accennato in precedenza, sia gli insiemi che le sequenze vengono implementati come \textit{liste}. A livello implementativo, per l'aggiunta di un elemento in una lista, uso la notazione [H$\mid$L], ovvero creo una nuova lista aggiungendo \textit{H} in testa alla lista \textit{L}, mentre per l'eliminazione di un elemento H si verificano due casi:
 	\begin{itemize}
@@ -109,7 +109,7 @@ Denoto le costanti tramite $\mathsf{valore\_atomo}$, mentre per riferirmi ai cam
 \textbf{Se non esplicitamente utilizzata, allora mi riferisco ai campi di un processo}.
 Riguardo ai campi $\theta$ ed \textit{e} se non esplicitamente dichiarati, si intende la loro modifica secondo la loro gestione interna da parte di Cauder, poichè non rilevanti in quella specifica regola.
 Nel punto 1 ho posto enfasi solo su 3 regole sintattiche, ovvero la $\mathsf{spawn}$ per generare processi, la $\mathsf{send}$ per inviare un messaggio e la $\mathsf{receive}$ per elaborare un messaggio presente nella local mailbox del processo.
-\textbf{Ma non è definito come un messaggio venga recapitato dalla global mailbox alla local mailbox, dato l'asincronicità di Erlang detta nell'introduzione}. La quarta regola semantica (\textit{rule sched}) serve per simulare questa asincronicità.\\
+\textbf{Ma non è definito come un messaggio venga recapitato dalla global mailbox alla local mailbox, dato l'asincronicità di Erlang detta nell'introduzione}. La quarta regola semantica che emerge (\textit{rule sched}) serve per simulare questa asincronicità.\\
 \textbf{SEMANTICA IN AVANTI}:
 \begin{itemize}
 	\item \textit{\textbf{rule spawn}}: Informalmente questa regola va ad inserire in $\Pi$ un \textit{proc} con \textit{history} e \textit{local mailbox} vuote. Formalmente:\\
